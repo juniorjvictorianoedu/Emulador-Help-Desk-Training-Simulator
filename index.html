@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Help Desk Training Simulator</title>
+<style>
+  :root{
+    --bg:#f3f5f9; --bg2:#ffffff; --panel:#ffffff; --panel2:#f8fafc;
+    --border:#e2e8f0; --text:#1e293b; --muted:#64748b;
+    --accent:#2563eb; --accent2:#0f766e; --ok:#059669; --warn:#d97706;
+    --danger:#dc2626; --purple:#7e22ce; --radius:8px; --sidebar-w:250px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+  button{font-family:inherit;cursor:pointer;border:none;border-radius:6px;font-size:13px;padding:8px 14px;font-weight:500;transition:.15s;background:var(--panel2);color:var(--text);border:1px solid var(--border);display:inline-flex;align-items:center;gap:6px}
+  button:hover{background:#e2e8f0}
+  button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  button.primary:hover{background:#1d4ed8;filter:none}
+  button.success{background:var(--ok);color:#fff;border-color:var(--ok)}
+  button.success:hover{background:#047857;filter:none}
+  button.danger{background:var(--danger);color:#fff;border-color:var(--danger)}
+  button.danger:hover{background:#b91c1c;filter:none}
+  button.warn{background:var(--warn);color:#fff;border-color:var(--warn)}
+  button.warn:hover{background:#b45309;filter:none}
+  button.ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}
+  button.ghost:hover{background:var(--panel2);color:var(--text)}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  input,select,textarea{font-family:inherit;font-size:13px;background:var(--bg2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 10px;width:100%;transition:border-color .15s}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(37,99,235,.1)}
+  textarea{resize:vertical;min-height:80px}
+  label{display:block;font-size:12px;color:var(--text);margin-bottom:4px;font-weight:600}
+  .field{margin-bottom:14px}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .row>.field{flex:1;min-width:160px}
+  h1,h2,h3{font-weight:600;color:#0f172a}
+  h2{font-size:20px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  h3{font-size:15px;margin-bottom:12px;color:var(--accent2);display:flex;align-items:center;gap:6px}
+  .muted{color:var(--muted);font-size:12px}
+  .app{display:flex;min-height:100vh}
+  .sidebar{width:var(--sidebar-w);background:#ffffff;border-right:1px solid var(--border);position:fixed;top:0;bottom:0;left:0;display:flex;flex-direction:column;overflow-y:auto;z-index:20}
+  .brand{padding:20px 18px;border-bottom:1px solid var(--border);background:#f8fafc;display:flex;align-items:center;gap:10px}
+  .brand svg{color:var(--accent);flex-shrink:0}
+  .brand b{font-size:15px;display:block;color:var(--accent)}
+  .brand span{font-size:11px;color:var(--muted)}
+  .nav{flex:1;padding:12px 8px}
+  .nav a{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:6px;color:var(--text);text-decoration:none;font-size:13px;margin-bottom:2px;cursor:pointer;font-weight:500}
+  .nav a svg{flex-shrink:0;opacity:.8}
+  .nav a:hover{background:var(--panel2)}
+  .nav a.active{background:var(--accent);color:#fff;font-weight:600}
+  .nav a.active svg{opacity:1}
+  .nav .sec{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:16px 14px 6px;font-weight:700}
+  .main{margin-left:var(--sidebar-w);flex:1;display:flex;flex-direction:column;min-width:0}
+  header.top{display:flex;align-items:center;gap:16px;padding:14px 24px;background:#ffffff;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+  header.top .search{flex:1;max-width:480px;position:relative}
+  header.top .search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted);pointer-events:none}
+  header.top .search input{padding-left:32px}
+  header.top .profile{display:flex;align-items:center;gap:12px;margin-left:auto}
+  .avatar{width:34px;height:34px;border-radius:50%;background:#e0e7ff;color:#3730a3;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px}
+  .content{padding:24px;flex:1;max-width:1400px;margin:0 auto;width:100%}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,0.02)}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:20px}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+  .kpi .v{font-size:22px;font-weight:700;color:var(--text)}
+  .kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:600;margin-top:2px}
+  .kpi.danger .v{color:var(--danger)}
+  .kpi.warn .v{color:var(--warn)}
+  .kpi.ok .v{color:var(--ok)}
+  .kpi.accent .v{color:var(--accent)}
+  table{width:100%;border-collapse:collapse;font-size:12.5px}
+  th{text-align:left;padding:12px 10px;border-bottom:2px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;user-select:none;white-space:nowrap;font-weight:700}
+  th:hover{color:var(--text)}
+  td{padding:12px 10px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text)}
+  tbody tr:hover{background:var(--panel2);cursor:pointer}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
+  .b-abierto{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+  .b-progreso{background:#ecfeff;color:#0369a1;border:1px solid #bae6fd}
+  .b-pendiente{background:#fffbeb;color:#b45309;border:1px solid #fde68a}
+  .b-resuelto{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}
+  .b-cerrado{background:#f1f5f9;color:#475569;border:1px solid #cbd5e1}
+  .b-reabierto{background:#faf5ff;color:#6b21a8;border:1px solid #e9d5ff}
+  .b-baja{background:#f8fafc;color:#475569;border:1px solid #e2e8f0}
+  .b-media{background:#f0f9ff;color:#0369a1;border:1px solid #bae6fd}
+  .b-alta{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+  .b-critica{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+  .b-sla-ok{background:#ecfdf5;color:#047857;border:1px solid #a7f3d0}
+  .b-sla-riesgo{background:#fffbeb;color:#b45309;border:1px solid #fde68a}
+  .b-sla-inc{background:#fef2f2;color:#b91c1c;border:1px solid #fecaca}
+  .flex{display:flex}.between{justify-content:space-between}.center{align-items:center}.gap8{gap:8px}.gap12{gap:12px}.wrap{flex-wrap:wrap}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+  @media(max-width:900px){.grid2,.grid3{grid-template-columns:1fr}.sidebar{transform:translateX(-100%)}.main{margin-left:0}}
+  .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:18px;overflow-x:auto}
+  .tabs button{background:transparent;border-radius:0;border-bottom:2px solid transparent;padding:10px 16px;color:var(--muted);white-space:nowrap;border-top:none;border-left:none;border-right:none;font-weight:600}
+  .tabs button:hover{background:var(--panel2)}
+  .tabs button.active{color:var(--accent);border-bottom-color:var(--accent);background:transparent}
+  .toast{position:fixed;top:20px;right:20px;padding:14px 20px;border-radius:6px;color:#fff;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.15);animation:slide .25s;max-width:340px;font-size:13px;display:flex;align-items:center;gap:10px}
+  .toast.ok{background:var(--ok)}.toast.err{background:var(--danger)}.toast.warn{background:var(--warn)}
+  .toast.user{background:var(--purple)}
+  .toast svg{flex-shrink:0}
+  @keyframes slide{from{transform:translateX(120%)}to{transform:translateX(0)}}
+  .modal-bg{position:fixed;inset:0;background:rgba(15,23,42,.5);display:flex;align-items:center;justify-content:center;z-index:500;padding:16px;backdrop-filter:blur(2px)}
+  .modal{background:var(--panel);border:1px solid var(--border);border-radius:8px;max-width:680px;width:100%;max-height:90vh;overflow-y:auto;padding:24px;box-shadow:0 20px 25px -5px rgba(0,0,0,0.1)}
+  .modal h3{margin-bottom:16px;color:var(--text)}
+  .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+  .timeline{position:relative;padding-left:22px}
+  .timeline::before{content:'';position:absolute;left:6px;top:4px;bottom:4px;width:2px;background:var(--border)}
+  .event{position:relative;padding:8px 0 14px 8px}
+  .event::before{content:'';position:absolute;left:-20px;top:12px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--panel)}
+  .event .meta{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .tag{display:inline-block;background:var(--panel2);border:1px solid var(--border);padding:4px 10px;border-radius:6px;font-size:11.5px;margin:2px;color:var(--muted)}
+  .empty{text-align:center;padding:48px;color:var(--muted);font-size:13px;background:var(--panel2);border-radius:8px;border:1px dashed var(--border)}
+  .empty svg{display:block;margin:0 auto 12px;color:var(--border)}
+  .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px;background:var(--panel2);padding:16px;border-radius:8px;border:1px solid var(--border)}
+  .pager{display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:12.5px;color:var(--muted)}
+  .chart{display:flex;gap:6px;align-items:flex-end;height:120px;padding-top:10px}
+  .chart .bar{flex:1;background:var(--accent);border-radius:4px 4px 0 0;min-width:14px;position:relative;opacity:0.85;transition:opacity .15s}
+  .chart .bar:hover{opacity:1}
+  .chart .bar span{position:absolute;bottom:-20px;left:0;right:0;text-align:center;font-size:10.5px;color:var(--muted);font-weight:600}
+  .bar-label{display:flex;justify-content:space-between;font-size:12px;padding:6px 0;color:var(--muted);font-weight:600}
+  .bar-wrap{background:var(--panel2);border:1px solid var(--border);border-radius:4px;height:10px;overflow:hidden;flex:1;margin:0 10px}
+  .bar-fill{height:100%;background:var(--accent);transition:width .3s}
+  .hidden{display:none!important}
+  .scenario-card{border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:12px;background:var(--panel2)}
+  .scenario-card.completed{border-color:var(--ok);background:#f0fdf4}
+  .crit-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--border);font-size:13px}
+  .boot{position:fixed;inset:0;background:#f3f5f9;display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+  .boot-card{max-width:640px;width:100%;background:#ffffff;border:1px solid var(--border);border-radius:12px;padding:48px;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.05)}
+  .boot-card h1{font-size:28px;margin-bottom:12px;color:#0f172a;font-weight:700}
+  .boot-card .sub{color:var(--muted);margin-bottom:32px;font-size:15px}
+  .components{display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:36px}
+  .component-pill{background:var(--panel2);border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px}
+  .component-pill svg{color:var(--accent2)}
+  .boot-start{font-size:15px;padding:14px 36px;font-weight:600;background:var(--accent);color:#fff;border-radius:6px;border:1px solid var(--accent);box-shadow:0 2px 4px rgba(37,99,235,.2);transition:background .15s;display:inline-flex;align-items:center;gap:10px}
+  .boot-start:hover{background:#1d4ed8}
+  .flowbar{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin-bottom:20px;font-size:13px;box-shadow:0 1px 2px rgba(0,0,0,.02)}
+  .flowbar .dot{width:10px;height:10px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px rgba(5,150,105,.15)}
+  .flowbar.paused .dot{background:var(--warn);box-shadow:0 0 0 3px rgba(217,119,6,.15)}
+  .flowbar.stopped .dot{background:var(--muted);box-shadow:none}
+  .flowbar .grow{flex:1}
+  .thread{display:flex;flex-direction:column;gap:12px;max-height:540px;overflow-y:auto;padding:16px;background:var(--panel2);border-radius:8px;border:1px solid var(--border);margin-bottom:16px}
+  .msg{max-width:85%;padding:12px 16px;border-radius:8px;font-size:13px;position:relative;white-space:pre-wrap;word-wrap:break-word;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .msg .meta{font-size:11px;color:var(--muted);margin-top:6px}
+  .msg .author{display:flex;align-items:center;gap:6px;font-weight:600}
+  .msg.agent{align-self:flex-end;background:#eff6ff;color:#1e3a8a;border:1px solid #bfdbfe;border-bottom-right-radius:2px}
+  .msg.user{align-self:flex-start;background:#ffffff;color:var(--text);border:1px solid var(--border);border-bottom-left-radius:2px}
+  .msg.system{align-self:center;background:var(--panel2);color:var(--muted);font-size:11.5px;padding:6px 12px;border-radius:20px;border:1px solid var(--border);box-shadow:none}
+  .msg.pending{opacity:.7;font-style:italic}
+  .unread{background:var(--purple);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;margin-left:8px;vertical-align:middle}
+  .composer{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:16px}
+  .quickbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+  .quickbar button{font-size:11.5px;padding:6px 12px;background:#fff;border:1px solid var(--border);color:var(--muted);border-radius:20px}
+  .quickbar button:hover{background:var(--panel2);color:var(--text);border-color:var(--accent)}
+  .attach-row{display:flex;gap:10px;align-items:center;margin-top:10px}
+  .sla-mini{display:flex;gap:12px;align-items:center;font-size:12.5px;margin-top:8px;flex-wrap:wrap}
+  .icon-inline{vertical-align:middle;flex-shrink:0}
+</style>
+</head>
+<body>
+
+<!-- ===== ICONOS SVG ===== -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></symbol>
+    <symbol id="i-ticket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16v3a2 2 0 0 0 0 4v3H4v-3a2 2 0 0 0 0-4z"/><path d="M9 7v10"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-graduation" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="i-headset" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+    <symbol id="i-chevron-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></symbol>
+    <symbol id="i-chevron-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+    <symbol id="i-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></symbol>
+    <symbol id="i-x-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></symbol>
+    <symbol id="i-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+    <symbol id="i-wrench" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+    <symbol id="i-file-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></symbol>
+    <symbol id="i-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+    <symbol id="i-handshake" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17l-1.5 1.5a2.12 2.12 0 0 1-3-3L10 12"/><path d="M14 14l2.5 2.5a2.12 2.12 0 0 0 3-3L16 10"/><path d="M8 11L5 8a2 2 0 0 1 0-3l1-1a2 2 0 0 1 3 0l3 3"/><path d="M16 11l3-3a2 2 0 0 0 0-3l-1-1a2 2 0 0 0-3 0l-3 3"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+    <symbol id="i-arrow-up-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+    <symbol id="i-flag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></symbol>
+    <symbol id="i-trending-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
+    <symbol id="i-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></symbol>
+    <!-- Icono para Acerca de -->
+    <symbol id="i-user-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M6.5 19c1.5-2 3.5-3 5.5-3s4 1 5.5 3"/></symbol>
+  </defs>
+</svg>
+
+<!-- ===== PANTALLA DE INICIO ===== -->
+<div class="boot" id="boot">
+  <div class="boot-card">
+    <h1>Help Desk Training Simulator</h1>
+    <p class="sub">Laboratorio ITSM con tickets vivos: conversación, diagnóstico, SLA y evaluación.</p>
+    <div class="components">
+      <span class="component-pill"><svg class="icon-inline" width="16" height="16"><use href="#i-dashboard"/></svg>Panel de control</span>
+      <span class="component-pill"><svg class="icon-inline" width="16" height="16"><use href="#i-message"/></svg>Conversación</span>
+      <span class="component-pill"><svg class="icon-inline" width="16" height="16"><use href="#i-wrench"/></svg>Diagnóstico</span>
+      <span class="component-pill"><svg class="icon-inline" width="16" height="16"><use href="#i-file-text"/></svg>Documentación</span>
+      <span class="component-pill"><svg class="icon-inline" width="16" height="16"><use href="#i-graduation"/></svg>Escenarios</span>
+    </div>
+    <button class="boot-start" id="btnStart"><svg width="18" height="18"><use href="#i-play"/></svg>Iniciar simulación</button>
+  </div>
+</div>
+
+<!-- ===== APP ===== -->
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <svg width="24" height="24"><use href="#i-headset"/></svg>
+      <div><b>Help Desk Simulator</b><span>ITSM Training Lab</span></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <div class="search">
+        <svg width="16" height="16"><use href="#i-search"/></svg>
+        <input id="globalSearch" placeholder="Buscar tickets por ID, asunto o solicitante..."/>
+      </div>
+      <div class="profile">
+        <span class="muted" id="clock"></span>
+        <div class="avatar">TI</div>
+        <div><div style="font-size:13px;font-weight:600;color:var(--text)">Agente TI</div><div class="muted" style="font-size:11px">Service Desk N1</div></div>
+      </div>
+    </header>
+    <main class="content" id="view"></main>
+  </div>
+</div>
+
+<script>
+'use strict';
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+let _seq = 1000;
+const uid = (p='TKT') => `${p}-${++_seq}`;
+const now = () => new Date().toISOString();
+const fmt = d => d ? new Date(d).toLocaleString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clone = o => JSON.parse(JSON.stringify(o));
+const rnd = arr => arr[Math.floor(Math.random()*arr.length)];
+const rint = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+
+function icon(id, size=16){
+  return `<svg class="icon-inline" width="${size}" height="${size}"><use href="#${id}"/></svg>`;
+}
+
+function toast(msg, type='ok'){
+  const t = document.createElement('div');
+  t.className = 'toast '+type;
+  const iconMap = {ok:'i-check-circle', err:'i-x-circle', warn:'i-alert', user:'i-message'};
+  t.innerHTML = icon(iconMap[type]||'i-info', 18) + `<span>${esc(msg)}</span>`;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3800);
+}
+
+const CONFIG = {
+  prioridades: ['Baja','Media','Alta','Crítica'],
+  estados: ['Abierto','En progreso','Pendiente del solicitante','Pendiente de otra área','Pendiente de proveedor','Resuelto','Cerrado','Reabierto'],
+  tipos: ['Incidente','Solicitud de servicio','Problema','Cambio'],
+  impacto: ['Bajo','Medio','Alto'],
+  urgencia: ['Baja','Media','Alta'],
+  grupos: ['Service Desk Nivel 1','Soporte Técnico Nivel 2','Infraestructura','Aplicaciones','Redes','Seguridad de TI','Proveedor externo'],
+  departamentos: ['Finanzas','Recursos Humanos','Ventas','Operaciones','TI','Legal','Marketing','Logística'],
+  categorias: {
+    'Hardware': ['Impresoras','Estaciones de trabajo','Periféricos','Servidores'],
+    'Software': ['Ofimática','ERP','Correo','Aplicaciones internas'],
+    'Redes': ['VPN','WiFi','Conectividad','Firewall'],
+    'Accesos': ['Contraseñas','Permisos','Autenticación','Altas y bajas'],
+    'Servicios TI': ['Correo corporativo','Telefonía','Backup','Nube']
+  },
+  matrizPrioridad: {
+    'Bajo|Baja':'Baja','Bajo|Media':'Baja','Bajo|Alta':'Media',
+    'Medio|Baja':'Baja','Medio|Media':'Media','Medio|Alta':'Alta',
+    'Alto|Baja':'Media','Alto|Media':'Alta','Alto|Alta':'Crítica'
+  },
+  sla: {
+    'Baja':     { respuesta: 8,  resolucion: 72 },
+    'Media':    { respuesta: 4,  resolucion: 48 },
+    'Alta':     { respuesta: 2,  resolucion: 24 },
+    'Crítica':  { respuesta: 1,  resolucion: 8  }
+  },
+  calendario: { activo:true, dias:[1,2,3,4,5], horaInicio:9, horaFin:18 }
+};
+
+const AGENTES = [
+  {id:'AGT-01',nombre:'Agente TI',grupo:'Service Desk Nivel 1',nivel:1,especialidad:'Soporte general',disponible:true},
+  {id:'AGT-02',nombre:'Luis Ramos',grupo:'Soporte Técnico Nivel 2',nivel:2,especialidad:'Windows / Ofimática',disponible:true},
+  {id:'AGT-03',nombre:'María López',grupo:'Aplicaciones',nivel:2,especialidad:'ERP / Apps internas',disponible:true},
+  {id:'AGT-04',nombre:'Carlos Díaz',grupo:'Infraestructura',nivel:3,especialidad:'Servidores / Virtualización',disponible:false},
+  {id:'AGT-05',nombre:'Sofía Herrera',grupo:'Redes',nivel:2,especialidad:'VPN / Firewall',disponible:true},
+  {id:'AGT-06',nombre:'Jorge Méndez',grupo:'Seguridad de TI',nivel:3,especialidad:'Accesos / Identidad',disponible:true}
+];
+
+const Rules = {
+  calcularPrioridad(i,u){ return CONFIG.matrizPrioridad[i+'|'+u] || 'Media'; },
+  horasHabiles(a,b){
+    if(!CONFIG.calendario.activo) return (b-a)/3600000;
+    const cal = CONFIG.calendario;
+    let t = new Date(a).getTime(); const end = new Date(b).getTime();
+    let horas = 0; let guard = 0;
+    while(t < end && guard++ < 50000){
+      const d = new Date(t); const dia = d.getDay();
+      const h = d.getHours() + d.getMinutes()/60;
+      if(cal.dias.includes(dia) && h>=cal.horaInicio && h<cal.horaFin){
+        const nextHour = Math.min((Math.floor(h)+1), cal.horaFin);
+        const step = Math.min(end-t, (nextHour-h)*3600000);
+        horas += step/3600000; t += step;
+      } else { t += 15*60000; }
+    }
+    return horas;
+  },
+  slaStatus(ticket){
+    const pol = CONFIG.sla[ticket.prioridad] || CONFIG.sla['Media'];
+    const creado = new Date(ticket.creadoEn);
+    const ahora = new Date();
+    const horasTranscurridas = this.horasHabiles(creado, ahora);
+    let estado = 'ok';
+    const pctResp = Math.min(100, Math.round(horasTranscurridas / pol.respuesta * 100));
+    const pctRes  = Math.min(100, Math.round(horasTranscurridas / pol.resolucion * 100));
+    if(['Resuelto','Cerrado'].includes(ticket.estado)){
+      if(ticket._resueltoEn){
+        const hRes = this.horasHabiles(creado, new Date(ticket._resueltoEn));
+        estado = hRes <= pol.resolucion ? 'ok' : 'incumplido';
+      }
+    } else {
+      if(pctRes >= 100) estado = 'incumplido';
+      else if(pctRes >= 75) estado = 'riesgo';
+      if(pctResp >= 100 && !ticket.primeraRespuesta) estado = 'incumplido';
+    }
+    const limiteResp = new Date(creado.getTime() + pol.respuesta*3600000);
+    const limiteRes = new Date(creado.getTime() + pol.resolucion*3600000);
+    return { pol, pctResp, pctRes, estado, limiteResp, limiteRes, horasTranscurridas };
+  }
+};
+
+const KEY = 'hdsim_data_v3';
+const Repo = (()=>{
+  let _cache = null;
+  function blank(){
+    return {
+      iniciado:false, tickets:[], intentos:[], config:clone(CONFIG),
+      inflow:{ activo:false, pausado:false, total:0 }
+    };
+  }
+  function load(){
+    if(_cache) return _cache;
+    try{ const raw = localStorage.getItem(KEY); if(raw){ _cache = JSON.parse(raw); return _cache; } }catch(e){}
+    _cache = blank(); save(); return _cache;
+  }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(_cache)); }catch(e){ console.warn(e); } }
+  function all(){ return load().tickets; }
+  function get(id){ return all().find(t=>t.id===id); }
+  function upsert(tk){ const d=load(); const i=d.tickets.findIndex(t=>t.id===tk.id); if(i>=0) d.tickets[i]=tk; else d.tickets.push(tk); tk.actualizadoEn=now(); save(); return tk; }
+  function reset(){ _cache = blank(); save(); }
+  return {load, save, all, get, upsert, reset};
+})();
+
+function logAudit(tk, actor, tipo, detalle){
+  tk.auditoria.push({fecha:now(), actor, tipo, detalle});
+  tk.actualizadoEn = now();
+}
+function agentName(id){ return AGENTES.find(a=>a.id===id)?.nombre || 'Sin asignar'; }
+function slaBadge(tk){
+  const s = Rules.slaStatus(tk);
+  if(s.estado==='ok') return `<span class="badge b-sla-ok">SLA ${s.pctRes}%</span>`;
+  if(s.estado==='riesgo') return `<span class="badge b-sla-riesgo">Riesgo ${s.pctRes}%</span>`;
+  return `<span class="badge b-sla-inc">Incumplido</span>`;
+}
+function estadoBadge(e){
+  const map={'Abierto':'abierto','En progreso':'progreso','Pendiente del solicitante':'pendiente','Pendiente de otra área':'pendiente','Pendiente de proveedor':'pendiente','Resuelto':'resuelto','Cerrado':'cerrado','Reabierto':'reabierto'};
+  return `<span class="badge b-${map[e]||'abierto'}">${e}</span>`;
+}
+function prioBadge(p){
+  const map={'Baja':'baja','Media':'media','Alta':'alta','Crítica':'critica'};
+  return `<span class="badge b-${map[p]||'media'}">${p}</span>`;
+}
+function unreadCount(tk){
+  return (tk.conversacion||[]).filter(m=>m.autorTipo==='usuario' && !m.leido).length;
+}
+
+function newTicket(data){
+  const tk = {
+    id: uid('TKT'),
+    descripcion:'', subcategoria:'', servicio:'', ubicacion:'Sucursal Central',
+    grupo: data.grupo || 'Service Desk Nivel 1',
+    agente: data.agente || null,
+    impacto: data.impacto || 'Medio',
+    urgencia: data.urgencia || 'Media',
+    prioridad: data.prioridad || Rules.calcularPrioridad(data.impacto||'Medio', data.urgencia||'Media'),
+    creadoEn: now(), actualizadoEn: now(),
+    primeraRespuesta:null, _resueltoEn:null,
+    conversacion:[], notasInternas:[], auditoria:[], diagnosticos:[],
+    resolucion:null, escalamientos:[], evidencias:[], reaperturas:0,
+    respuestaPendiente:false, email: data.email || 'usuario@empresa.test',
+    ...data
+  };
+  tk.conversacion.push({
+    id:'m'+Math.random().toString(36).slice(2,8), tipo:'sistema',
+    autor:'Sistema', autorTipo:'sistema',
+    texto:'Ticket creado y asignado a la cola de Service Desk.',
+    fecha:now(), leido:true
+  });
+  logAudit(tk, 'Sistema', 'Creación', 'Solicitud recibida en el simulador');
+  return tk;
+}
+
+const PLANTILLAS_SOLICITUD = [
+  {asunto:'No puedo imprimir desde mi estación de trabajo', descripcion:'Al enviar a imprimir aparece un mensaje de error de cola de impresión.', tipo:'Incidente', categoria:'Hardware', subcategoria:'Impresoras', impacto:'Medio', urgencia:'Media', grupo:'Service Desk Nivel 1', solicitante:'Laura Gómez', departamento:'Finanzas'},
+  {asunto:'El sistema de facturación no responde', descripcion:'El módulo de facturación tarda más de 5 minutos en cargar y a veces se cierra solo.', tipo:'Incidente', categoria:'Software', subcategoria:'ERP', impacto:'Alto', urgencia:'Alta', grupo:'Aplicaciones', solicitante:'Marta Sánchez', departamento:'Finanzas'},
+  {asunto:'Sin acceso a correo corporativo', descripcion:'Al ingresar credenciales recibo "usuario o contraseña incorrectos", aunque no la he cambiado.', tipo:'Incidente', categoria:'Accesos', subcategoria:'Contraseñas', impacto:'Medio', urgencia:'Alta', grupo:'Seguridad de TI', solicitante:'Pedro Ruiz', departamento:'Ventas'},
+  {asunto:'VPN no conecta desde casa', descripcion:'El cliente VPN muestra error de timeout. Ya reinicié el equipo y el router.', tipo:'Incidente', categoria:'Redes', subcategoria:'VPN', impacto:'Medio', urgencia:'Media', grupo:'Redes', solicitante:'Diego Fuentes', departamento:'Marketing'},
+  {asunto:'Solicitud de alta de usuario en ERP', descripcion:'Nuevo colaborador requiere acceso al módulo de compras con perfil de consulta.', tipo:'Solicitud de servicio', categoria:'Accesos', subcategoria:'Altas y bajas', impacto:'Bajo', urgencia:'Baja', grupo:'Aplicaciones', solicitante:'Ana Beltrán', departamento:'Recursos Humanos'},
+  {asunto:'WiFi intermitente en piso 3', descripcion:'Se pierde conexión WiFi cada 10 minutos en toda el ala norte.', tipo:'Incidente', categoria:'Redes', subcategoria:'WiFi', impacto:'Alto', urgencia:'Alta', grupo:'Redes', solicitante:'Tomás Vera', departamento:'Ventas'},
+  {asunto:'Correo no sincroniza en dispositivo móvil', descripcion:'Desde ayer el correo no llega al celular corporativo; en la computadora sí funciona.', tipo:'Incidente', categoria:'Software', subcategoria:'Correo', impacto:'Medio', urgencia:'Baja', grupo:'Soporte Técnico Nivel 2', solicitante:'Carla Méndez', departamento:'Legal'},
+  {asunto:'Impresora de sucursal Norte fuera de servicio', descripcion:'La impresora principal no enciende. Afecta a todo el departamento.', tipo:'Incidente', categoria:'Hardware', subcategoria:'Impresoras', impacto:'Alto', urgencia:'Media', grupo:'Soporte Técnico Nivel 2', solicitante:'Raúl Ortega', departamento:'Operaciones'},
+  {asunto:'Solicitud de instalación de Office', descripcion:'Requiero instalar el paquete de Office en el equipo nuevo asignado.', tipo:'Solicitud de servicio', categoria:'Software', subcategoria:'Ofimática', impacto:'Bajo', urgencia:'Baja', grupo:'Soporte Técnico Nivel 2', solicitante:'Hugo Salinas', departamento:'Logística'},
+  {asunto:'Aplicación contable lenta', descripcion:'El sistema tarda más de 3 minutos en abrir módulos; empeora por la tarde.', tipo:'Problema', categoria:'Software', subcategoria:'Aplicaciones internas', impacto:'Medio', urgencia:'Media', grupo:'Aplicaciones', solicitante:'Elena Ríos', departamento:'Finanzas'},
+  {asunto:'Firewall bloquea nueva aplicación de RRHH', descripcion:'La nueva app no accede a la base de datos externa desde la red corporativa.', tipo:'Cambio', categoria:'Redes', subcategoria:'Firewall', impacto:'Medio', urgencia:'Alta', grupo:'Seguridad de TI', solicitante:'Pilar Cárdenas', departamento:'Recursos Humanos'},
+  {asunto:'Backup nocturno fallido', descripcion:'El job de respaldo de las 02:00 falló por timeout. Se requiere revisión.', tipo:'Incidente', categoria:'Servicios TI', subcategoria:'Backup', impacto:'Alto', urgencia:'Media', grupo:'Infraestructura', solicitante:'Monitor automático', departamento:'TI'},
+  {asunto:'Solicitud de acceso a carpeta compartida', descripcion:'Necesito acceso a la carpeta de proyectos compartidos del área.', tipo:'Solicitud de servicio', categoria:'Accesos', subcategoria:'Permisos', impacto:'Bajo', urgencia:'Media', grupo:'Service Desk Nivel 1', solicitante:'Julio Castro', departamento:'Operaciones'},
+  {asunto:'Teléfono IP sin tono', descripcion:'El teléfono de recepción no tiene tono desde esta mañana.', tipo:'Incidente', categoria:'Servicios TI', subcategoria:'Telefonía', impacto:'Medio', urgencia:'Media', grupo:'Redes', solicitante:'Rosa Núñez', departamento:'Ventas'},
+  {asunto:'Base de datos de pruebas inaccesible', descripcion:'El entorno de pruebas de la app de ventas no responde a conexiones.', tipo:'Problema', categoria:'Software', subcategoria:'Aplicaciones internas', impacto:'Medio', urgencia:'Alta', grupo:'Infraestructura', solicitante:'Equipo de desarrollo', departamento:'TI'},
+  {asunto:'Pantalla azul ocasional en estación de trabajo', descripcion:'El equipo se reinicia espontáneamente 2 o 3 veces al día.', tipo:'Incidente', categoria:'Hardware', subcategoria:'Estaciones de trabajo', impacto:'Medio', urgencia:'Media', grupo:'Soporte Técnico Nivel 2', solicitante:'Fernando Luna', departamento:'Operaciones'},
+  {asunto:'Solicitud de nuevo equipo de cómputo', descripcion:'Nuevo colaborador requiere laptop para iniciar labores el lunes.', tipo:'Solicitud de servicio', categoria:'Hardware', subcategoria:'Estaciones de trabajo', impacto:'Bajo', urgencia:'Baja', grupo:'Service Desk Nivel 1', solicitante:'Andrés Peña', departamento:'Marketing'},
+  {asunto:'Servidor de archivos con espacio lleno', descripcion:'El servidor FS01 reporta disco casi lleno; se requiere liberar espacio.', tipo:'Incidente', categoria:'Hardware', subcategoria:'Servidores', impacto:'Alto', urgencia:'Alta', grupo:'Infraestructura', solicitante:'Monitor automático', departamento:'TI'}
+];
+
+function generarSolicitud(){
+  const base = clone(rnd(PLANTILLAS_SOLICITUD));
+  const n = Repo.load().inflow.total + 1;
+  base.asunto = base.asunto.replace(/\s*#?\d*$/, '') + ` (${n})`;
+  const tk = newTicket(base);
+  Repo.upsert(tk);
+  Repo.load().inflow.total = n; Repo.save();
+  return tk;
+}
+
+const Inflow = (()=>{
+  let timer = null;
+  const MIN = 4000, MAX = 9000;
+  function schedule(){
+    clearTimeout(timer);
+    const d = Repo.load();
+    if(!d.iniciado || !d.inflow.activo || d.inflow.pausado) return;
+    timer = setTimeout(()=>{
+      const tk = generarSolicitud();
+      toast(`Nueva solicitud: ${tk.id}`, 'ok');
+      if(['dashboard','detail'].includes(state.view)) render();
+      schedule();
+    }, MIN + Math.random()*(MAX-MIN));
+  }
+  return {
+    start(){ const d=Repo.load(); d.inflow.activo=true; d.inflow.pausado=false; Repo.save(); schedule(); },
+    pause(){ const d=Repo.load(); d.inflow.pausado=true; Repo.save(); clearTimeout(timer); },
+    resume(){ const d=Repo.load(); d.inflow.pausado=false; Repo.save(); schedule(); },
+    stop(){ const d=Repo.load(); d.inflow.activo=false; d.inflow.pausado=false; Repo.save(); clearTimeout(timer); },
+    schedule
+  };
+})();
+
+const UserReplies = (()=>{
+  const DELAY_MIN = 5000, DELAY_MAX = 12000;
+  let timer = null;
+  function pendingTickets(){
+    return Repo.all().filter(t=>{
+      const conv = t.conversacion||[];
+      const lastAgent = [...conv].reverse().find(m=>m.autorTipo==='agente' && m.tipo==='mensaje');
+      if(!lastAgent) return false;
+      const after = conv.slice(conv.indexOf(lastAgent)+1);
+      const userAfter = after.some(m=>m.autorTipo==='usuario');
+      return !userAfter && t.estado!=='Cerrado';
+    });
+  }
+  function schedule(){
+    clearTimeout(timer);
+    const d = Repo.load();
+    if(!d.iniciado) return;
+    const pend = pendingTickets();
+    if(!pend.length) return;
+    timer = setTimeout(()=>{
+      const tk = rnd(pend);
+      if(tk) generarRespuestaUsuario(tk);
+      schedule();
+    }, DELAY_MIN + Math.random()*(DELAY_MAX-DELAY_MIN));
+  }
+  return { schedule, pendingTickets };
+})();
+
+const RESPUESTAS = {
+  info: [
+    'Adjunto captura del error. El problema ocurre al intentar abrir el módulo.',
+    'Ya probé reiniciando el equipo, pero el problema continúa.',
+    'Los datos solicitados son: usuario mgomez, equipo PC-FIN-014, sucursal Central.'
+  ],
+  seguimiento: [
+    '¿Hay alguna novedad sobre mi caso? Sigo sin poder trabajar con normalidad.',
+    'Continúo esperando respuesta. El problema persiste.',
+    '¿Podrían indicarme un tiempo estimado? Es importante para mi operación.'
+  ],
+  confirmacion: [
+    'Gracias, ya puedo trabajar. Confirmo que el problema se resolvió.',
+    'Efectivamente, ahora funciona correctamente. Pueden cerrar el ticket.',
+    'Confirmo la solución. Muchas gracias por el apoyo.'
+  ],
+  reabre: [
+    'El problema volvió a presentarse esta mañana. No quedó resuelto.',
+    'Sigue ocurriendo lo mismo. El cierre fue prematuro.',
+    'El error reapareció después de un rato. Necesito que lo revisen de nuevo.'
+  ],
+  queja: [
+    'Llevo varios días sin solución, esto está afectando mi trabajo.',
+    'No entiendo por qué tarda tanto. Requiero una respuesta concreta.',
+    'Esto ya me está generando retrasos importantes. Urge atención.'
+  ]
+};
+
+function generarRespuestaUsuario(tk){
+  let plantilla;
+  if(tk.estado==='Pendiente del solicitante'){
+    plantilla = rnd(RESPUESTAS.info);
+  } else if(tk.estado==='Resuelto'){
+    plantilla = rnd(RESPUESTAS.confirmacion);
+  } else if(tk.estado==='Cerrado' && Math.random()<0.25){
+    plantilla = rnd(RESPUESTAS.reabre);
+  } else if(tk.estado==='Reabierto'){
+    plantilla = rnd(RESPUESTAS.reabre);
+  } else if(Rules.slaStatus(tk).estado==='incumplido' && Math.random()<0.5){
+    plantilla = rnd(RESPUESTAS.queja);
+  } else {
+    plantilla = rnd(RESPUESTAS.seguimiento);
+  }
+
+  const lastAgentMsg = [...tk.conversacion].reverse().find(m=>m.autorTipo==='agente' && m.tipo==='mensaje');
+  if(lastAgentMsg && /confirm|valid|resuelt|cerrar|cerramos/i.test(lastAgentMsg.texto)){
+    plantilla = rnd(RESPUESTAS.confirmacion);
+  }
+
+  const msg = {
+    id:'m'+Math.random().toString(36).slice(2,8),
+    tipo:'mensaje', autor:tk.solicitante, autorTipo:'usuario',
+    texto:plantilla, fecha:now(), leido:false
+  };
+  tk.conversacion.push(msg);
+  tk.respuestaPendiente = false;
+  logAudit(tk, tk.solicitante, 'Respuesta del solicitante', plantilla.slice(0,80));
+
+  if(RESPUESTAS.confirmacion.includes(plantilla)){
+    tk.usuarioConfirmo = true;
+  }
+  if(RESPUESTAS.reabre.includes(plantilla) && ['Resuelto','Cerrado'].includes(tk.estado)){
+    tk.estado = 'Reabierto';
+    tk.reaperturas = (tk.reaperturas||0)+1;
+    logAudit(tk, tk.solicitante, 'Reapertura automática', 'El usuario reporta que el problema persiste');
+  }
+
+  Repo.upsert(tk);
+  toast(`${tk.solicitante} respondió en ${tk.id}`, 'user');
+  if(['dashboard','detail'].includes(state.view)) render();
+  UserReplies.schedule();
+}
+
+const NAV = [
+  {sec:'Principal'},
+  {id:'dashboard', label:'Panel de control', icon:'i-dashboard'},
+  {sec:'Gestión'},
+  {id:'create', label:'Crear ticket', icon:'i-plus'},
+  {id:'agents', label:'Agentes y grupos', icon:'i-users'},
+  {sec:'Formación'},
+  {id:'scenarios', label:'Centro de escenarios', icon:'i-graduation'},
+  {sec:'Sistema'},
+  {id:'config', label:'Configuración', icon:'i-settings'},
+  {id:'help', label:'Guía de uso', icon:'i-help'},
+  {id:'about', label:'Acerca de', icon:'i-user-circle'}
+];
+
+let state = { view:'dashboard', ticketId:null, filters:{}, page:1, sort:{key:'actualizadoEn',dir:-1}, scenarioId:null, tab:'conversacion', vistaPre:'all', scenarioTickets:{} };
+
+function renderNav(){
+  $('#nav').innerHTML = NAV.map(n=>{
+    if(n.sec) return `<div class="sec">${n.sec}</div>`;
+    return `<a data-view="${n.id}" class="${state.view===n.id?'active':''}">${icon(n.icon, 16)}<span>${n.label}</span></a>`;
+  }).join('');
+  $$('#nav a').forEach(a=>a.onclick=()=>{ state.view=a.dataset.view; state.ticketId=null; state.scenarioId=null; render(); });
+}
+function go(view, id){ state.view = view; state.ticketId = id||null; render(); }
+
+function render(){
+  const d = Repo.load();
+  if(!d.iniciado){ $('#boot').classList.remove('hidden'); return; }
+  $('#boot').classList.add('hidden');
+  renderNav();
+  const v = $('#view');
+  const map = {
+    dashboard: viewDashboard, create: viewCreate,
+    detail: ()=>viewDetail(state.ticketId), agents: viewAgents,
+    scenarios: viewScenarios, scenarioRun: ()=>viewScenarioRun(state.scenarioId),
+    config: viewConfig, help: viewHelp, about: viewAbout,
+    inbox: ()=>viewInbox()
+  };
+  v.innerHTML = (map[state.view] || viewDashboard)();
+  bindViewEvents();
+  $('#globalSearch').oninput = e=>{
+    state.filters.search = e.target.value; state.page=1; render();
+  };
+}
+
+function flowbar(){
+  const d = Repo.load();
+  const st = !d.inflow.activo ? 'stopped' : d.inflow.pausado ? 'paused' : '';
+  const label = !d.inflow.activo ? 'Recepción detenida' : d.inflow.pausado ? 'Recepción pausada' : 'Recibiendo solicitudes en vivo';
+  return `<div class="flowbar ${st}">
+    <div class="dot"></div>
+    <b>${label}</b>
+    <span class="muted">· ${d.inflow.total} solicitudes recibidas</span>
+    <span class="grow"></span>
+    ${!d.inflow.activo
+      ? `<button class="primary" id="flowStart">${icon('i-play',14)} Activar recepción</button>`
+      : d.inflow.pausado
+        ? `<button class="success" id="flowResume">${icon('i-play',14)} Reanudar</button>`
+        : `<button class="warn" id="flowPause">${icon('i-pause',14)} Pausar</button>`}
+    <button class="ghost" id="flowManual">${icon('i-plus',14)} Solicitud manual</button>
+  </div>`;
+}
+function bindFlowbar(){
+  $('#flowStart')?.addEventListener('click', ()=>{ Inflow.start(); render(); toast('Recepción activada','ok'); });
+  $('#flowResume')?.addEventListener('click', ()=>{ Inflow.resume(); render(); toast('Recepción reanudada','ok'); });
+  $('#flowPause')?.addEventListener('click', ()=>{ Inflow.pause(); render(); toast('Recepción pausada','warn'); });
+  $('#flowManual')?.addEventListener('click', ()=>{
+    const tk = generarSolicitud();
+    toast(`Solicitud creada: ${tk.id}`,'ok');
+    go('detail', tk.id);
+  });
+}
+
+function viewDashboard(){
+  const ts = Repo.all();
+  const count = st => ts.filter(t=>t.estado===st).length;
+  const proximos = ts.filter(t=>Rules.slaStatus(t).estado==='riesgo').length;
+  const incumplidos = ts.filter(t=>Rules.slaStatus(t).estado==='incumplido').length;
+  const sinActividad = ts.filter(t=>!['Cerrado','Resuelto'].includes(t.estado) && (Date.now()-new Date(t.actualizadoEn).getTime())>2*86400000).length;
+  const conPrimeraResp = ts.filter(t=>t.primeraRespuesta);
+  const tmr = conPrimeraResp.length ? (conPrimeraResp.reduce((a,t)=>a+(new Date(t.primeraRespuesta)-new Date(t.creadoEn)),0)/conPrimeraResp.length/3600000).toFixed(1) : '—';
+  const resueltos = ts.filter(t=>t._resueltoEn);
+  const ttr = resueltos.length ? (resueltos.reduce((a,t)=>a+(new Date(t._resueltoEn)-new Date(t.creadoEn)),0)/resueltos.length/3600000).toFixed(1) : '—';
+  const slaCumplidos = ts.filter(t=>Rules.slaStatus(t).estado==='ok').length;
+  const pctSla = ts.length ? Math.round(slaCumplidos/ts.length*100) : 0;
+  const noLeidos = ts.reduce((a,t)=>a+unreadCount(t),0);
+
+  const distEstado = CONFIG.estados.map(e=>({label:e, n:count(e)}));
+  const distPrio = CONFIG.prioridades.map(p=>({label:p, n:ts.filter(t=>t.prioridad===p).length}));
+  const distCat = Object.keys(CONFIG.categorias).map(c=>({label:c, n:ts.filter(t=>t.categoria===c).length}));
+  const distAg = AGENTES.map(a=>({label:a.nombre.split(' ')[0], n:ts.filter(t=>t.agente===a.id).length}));
+
+  return `
+  ${flowbar()}
+  <h2>Panel de control</h2>
+  <p class="muted" style="margin-bottom:20px">Indicadores en tiempo real · ${ts.length} tickets · ${noLeidos} mensajes sin leer</p>
+  <div class="kpis">
+    <div class="kpi accent"><div class="v">${ts.length}</div><div class="l">Total tickets</div></div>
+    <div class="kpi"><div class="v">${count('Abierto')}</div><div class="l">Abiertos</div></div>
+    <div class="kpi"><div class="v">${count('En progreso')}</div><div class="l">En progreso</div></div>
+    <div class="kpi warn"><div class="v">${count('Pendiente del solicitante')+count('Pendiente de otra área')+count('Pendiente de proveedor')}</div><div class="l">Pendientes</div></div>
+    <div class="kpi ok"><div class="v">${count('Resuelto')}</div><div class="l">Resueltos</div></div>
+    <div class="kpi"><div class="v">${count('Cerrado')}</div><div class="l">Cerrados</div></div>
+    <div class="kpi warn"><div class="v">${proximos}</div><div class="l">Próximos a vencer</div></div>
+    <div class="kpi danger"><div class="v">${incumplidos}</div><div class="l">SLA incumplido</div></div>
+    <div class="kpi"><div class="v">${sinActividad}</div><div class="l">Sin actividad reciente</div></div>
+    <div class="kpi accent"><div class="v">${tmr}h</div><div class="l">T. medio 1ª respuesta</div></div>
+    <div class="kpi accent"><div class="v">${ttr}h</div><div class="l">T. medio resolución</div></div>
+    <div class="kpi ok"><div class="v">${pctSla}%</div><div class="l">Cumplimiento SLA</div></div>
+  </div>
+  ${ts.length===0?`<div class="empty">${icon('i-ticket',32)}Aún no hay tickets. Espera la llegada de solicitudes o usa <b>Solicitud manual</b>.</div>`:''}
+  <div class="grid2">
+    <div class="card"><h3>Distribución por estado</h3><div class="chart">${barChart(distEstado,'accent')}</div></div>
+    <div class="card"><h3>Distribución por prioridad</h3><div class="chart">${barChart(distPrio,'purple')}</div></div>
+    <div class="card"><h3>Distribución por categoría</h3><div class="chart">${barChart(distCat,'accent2')}</div></div>
+    <div class="card"><h3>Carga por agente</h3><div class="chart">${barChart(distAg,'ok')}</div></div>
+  </div>
+  <div class="card">
+    <h3>Actividad reciente</h3>
+    ${ts.length===0?`<div class="empty">${icon('i-clock',32)}Sin actividad todavía.</div>`:
+      ts.slice().sort((a,b)=>new Date(b.actualizadoEn)-new Date(a.actualizadoEn)).slice(0,6).map(t=>{
+        const u = unreadCount(t);
+        return `<div class="flex between center" style="padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer" data-id="${t.id}">
+          <div><b>${esc(t.id)}</b> · ${esc(t.asunto)} ${u?`<span class="unread">${u} nuevo(s)</span>`:''}<div class="muted">${esc(t.solicitante)} · ${fmt(t.actualizadoEn)}</div></div>
+          <div>${estadoBadge(t.estado)} ${prioBadge(t.prioridad)}</div>
+        </div>`;
+      }).join('')}
+  </div>`;
+}
+function barChart(data, color){
+  const max = Math.max(1,...data.map(d=>d.n));
+  const colors = {accent:'var(--accent)',purple:'var(--purple)',accent2:'var(--accent2)',ok:'var(--ok)'};
+  return data.map(d=>`<div class="bar" style="height:${Math.max(4,d.n/max*100)}%;background:${colors[color]||'var(--accent)'}" title="${esc(d.label)}: ${d.n}"><span>${esc(d.label.slice(0,8))}</span></div>`).join('');
+}
+
+const VISTAS_PRE = [
+  {id:'all',label:'Todos',fn:()=>true},
+  {id:'mine',label:'Mis tickets',fn:t=>t.agente==='AGT-01'},
+  {id:'unassigned',label:'Sin asignar',fn:t=>!t.agente},
+  {id:'open',label:'Abiertos',fn:t=>t.estado==='Abierto'},
+  {id:'pending',label:'Pendientes',fn:t=>t.estado.startsWith('Pendiente')},
+  {id:'high',label:'Alta/Crítica',fn:t=>['Alta','Crítica'].includes(t.prioridad)},
+  {id:'risk',label:'Próximos a vencer',fn:t=>Rules.slaStatus(t).estado==='riesgo'},
+  {id:'sla',label:'SLA incumplido',fn:t=>Rules.slaStatus(t).estado==='incumplido'},
+  {id:'inactive',label:'Sin actividad',fn:t=>!['Cerrado','Resuelto'].includes(t.estado) && (Date.now()-new Date(t.actualizadoEn).getTime())>2*86400000},
+  {id:'reopened',label:'Reabiertos',fn:t=>t.estado==='Reabierto'},
+  {id:'unread',label:'Con mensajes nuevos',fn:t=>unreadCount(t)>0}
+];
+
+function viewInbox(){
+  let ts = Repo.all().slice();
+  const vp = VISTAS_PRE.find(v=>v.id===state.vistaPre);
+  if(vp) ts = ts.filter(vp.fn);
+  const f = state.filters||{};
+  if(f.estado) ts = ts.filter(t=>t.estado===f.estado);
+  if(f.prioridad) ts = ts.filter(t=>t.prioridad===f.prioridad);
+  if(f.categoria) ts = ts.filter(t=>t.categoria===f.categoria);
+  if(f.agente) ts = ts.filter(t=>t.agente===f.agente);
+  if(f.departamento) ts = ts.filter(t=>t.departamento===f.departamento);
+  if(f.tipo) ts = ts.filter(t=>t.tipo===f.tipo);
+  if(f.sla) ts = ts.filter(t=>Rules.slaStatus(t).estado===f.sla);
+  if(f.search){
+    const q=f.search.toLowerCase();
+    ts = ts.filter(t=>[t.id,t.asunto,t.solicitante].join(' ').toLowerCase().includes(q));
+  }
+  const sort = state.sort;
+  ts.sort((a,b)=>{ let va=a[sort.key], vb=b[sort.key];
+    if(sort.key==='sla'){ va=Rules.slaStatus(a).pctRes; vb=Rules.slaStatus(b).pctRes; }
+    if(sort.key==='agente'){ va=agentName(a.agente); vb=agentName(b.agente); }
+    if(va<vb) return sort.dir; if(va>vb) return -sort.dir; return 0;
+  });
+  const perPage = 10;
+  const totalPages = Math.max(1, Math.ceil(ts.length/perPage));
+  if(state.page>totalPages) state.page=totalPages;
+  const pageTs = ts.slice((state.page-1)*perPage, state.page*perPage);
+  const th = (key,label)=>`<th data-sort="${key}">${label}${sort.key===key?(sort.dir>0?' ▲':' ▼'):''}</th>`;
+
+  return `
+  ${flowbar()}
+  <div class="flex between center" style="margin-bottom:16px">
+    <h2>Bandeja de tickets</h2>
+    <div class="flex gap8">
+      <button class="ghost" id="exportCsv">${icon('i-download',14)} Exportar CSV</button>
+      <button class="primary" onclick="go('create')">${icon('i-plus',14)} Nuevo ticket</button>
+    </div>
+  </div>
+  <div class="tabs" id="preViews">
+    ${VISTAS_PRE.map(v=>`<button data-pre="${v.id}" class="${state.vistaPre===v.id?'active':''}">${v.label} (${Repo.all().filter(v.fn).length})</button>`).join('')}
+  </div>
+  <div class="card" style="padding:0">
+    <div class="filters">
+      <div><label>Estado</label><select data-f="estado"><option value="">Todos</option>${CONFIG.estados.map(e=>`<option ${f.estado===e?'selected':''}>${e}</option>`).join('')}</select></div>
+      <div><label>Prioridad</label><select data-f="prioridad"><option value="">Todas</option>${CONFIG.prioridades.map(p=>`<option ${f.prioridad===p?'selected':''}>${p}</option>`).join('')}</select></div>
+      <div><label>Categoría</label><select data-f="categoria"><option value="">Todas</option>${Object.keys(CONFIG.categorias).map(c=>`<option ${f.categoria===c?'selected':''}>${c}</option>`).join('')}</select></div>
+      <div><label>Agente</label><select data-f="agente"><option value="">Todos</option>${AGENTES.map(a=>`<option value="${a.id}" ${f.agente===a.id?'selected':''}>${a.nombre}</option>`).join('')}</select></div>
+      <div><label>Departamento</label><select data-f="departamento"><option value="">Todos</option>${CONFIG.departamentos.map(d=>`<option ${f.departamento===d?'selected':''}>${d}</option>`).join('')}</select></div>
+      <div><label>Tipo</label><select data-f="tipo"><option value="">Todos</option>${CONFIG.tipos.map(t=>`<option ${f.tipo===t?'selected':''}>${t}</option>`).join('')}</select></div>
+      <div><label>SLA</label><select data-f="sla"><option value="">Todos</option><option value="ok" ${f.sla==='ok'?'selected':''}>Cumplido</option><option value="riesgo" ${f.sla==='riesgo'?'selected':''}>Riesgo</option><option value="incumplido" ${f.sla==='incumplido'?'selected':''}>Incumplido</option></select></div>
+      <div><label>Buscar</label><input data-f="search" value="${esc(f.search||'')}" placeholder="ID, asunto, solicitante"/></div>
+    </div>
+    ${pageTs.length? `
+    <div style="overflow-x:auto">
+    <table>
+      <thead><tr>
+        ${th('id','ID')}${th('asunto','Asunto')}${th('solicitante','Solicitante')}${th('departamento','Depto')}
+        ${th('categoria','Categoría')}${th('tipo','Tipo')}${th('prioridad','Prioridad')}${th('estado','Estado')}
+        ${th('agente','Agente')}${th('creadoEn','Creado')}${th('actualizadoEn','Actualizado')}${th('sla','SLA')}
+      </tr></thead>
+      <tbody>
+      ${pageTs.map(t=>{
+        const u = unreadCount(t);
+        return `<tr data-id="${t.id}">
+        <td><b>${t.id}</b>${u?`<span class="unread">${u}</span>`:''}</td>
+        <td style="max-width:240px">${esc(t.asunto)}</td>
+        <td>${esc(t.solicitante)}</td>
+        <td>${esc(t.departamento)}</td>
+        <td>${esc(t.categoria)}</td>
+        <td>${esc(t.tipo)}</td>
+        <td>${prioBadge(t.prioridad)}</td>
+        <td>${estadoBadge(t.estado)}</td>
+        <td>${esc(agentName(t.agente))}</td>
+        <td>${fmt(t.creadoEn)}</td>
+        <td>${fmt(t.actualizadoEn)}</td>
+        <td>${slaBadge(t)}</td>
+      </tr>`;
+      }).join('')}
+      </tbody>
+    </table></div>
+    <div class="pager" style="padding:16px;background:var(--panel2);border-top:1px solid var(--border);margin:0;border-radius:0 0 8px 8px">
+      <span>Mostrando ${pageTs.length} de ${ts.length} tickets</span>
+      <div class="flex gap8">
+        <button class="ghost" ${state.page<=1?'disabled':''} id="prevPage">${icon('i-chevron-left',14)} Anterior</button>
+        <span style="padding:6px 12px;font-weight:600">Página ${state.page} / ${totalPages}</span>
+        <button class="ghost" ${state.page>=totalPages?'disabled':''} id="nextPage">Siguiente ${icon('i-chevron-right',14)}</button>
+      </div>
+    </div>` : `<div class="empty" style="margin:24px;border:none">${icon('i-search',32)}No hay tickets que coincidan. ${Repo.all().length===0?'La bandeja está vacía: espera solicitudes o usa <b>Solicitud manual</b>.':''}</div>`}
+  </div>`;
+}
+
+function viewCreate(){
+  return `
+  ${flowbar()}
+  <h2>Crear ticket</h2>
+  <p class="muted" style="margin-bottom:20px">La prioridad se calcula automáticamente con la matriz impacto/urgencia.</p>
+  <form id="createForm" class="card">
+    <div class="row">
+      <div class="field" style="flex:2"><label>Asunto *</label><input name="asunto" required minlength="8" placeholder="Resumen breve del problema"/></div>
+      <div class="field"><label>Tipo *</label><select name="tipo" required>${CONFIG.tipos.map(t=>`<option>${t}</option>`).join('')}</select></div>
+    </div>
+    <div class="field"><label>Descripción detallada *</label><textarea name="descripcion" required minlength="15" placeholder="Síntomas, mensajes de error, cuándo comenzó..."></textarea></div>
+    <div class="row">
+      <div class="field"><label>Solicitante *</label><input name="solicitante" required/></div>
+      <div class="field"><label>Correo ficticio *</label><input name="email" type="email" required value="usuario@empresa.test"/></div>
+      <div class="field"><label>Departamento *</label><select name="departamento" required>${CONFIG.departamentos.map(d=>`<option>${d}</option>`).join('')}</select></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Categoría *</label><select name="categoria" required>${Object.keys(CONFIG.categorias).map(c=>`<option>${c}</option>`).join('')}</select></div>
+      <div class="field"><label>Subcategoría *</label><select name="subcategoria" required></select></div>
+      <div class="field"><label>Servicio afectado</label><input name="servicio"/></div>
+      <div class="field"><label>Ubicación</label><input name="ubicacion" value="Sucursal Central"/></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Impacto *</label><select name="impacto" required>${CONFIG.impacto.map(i=>`<option>${i}</option>`).join('')}</select></div>
+      <div class="field"><label>Urgencia *</label><select name="urgencia" required>${CONFIG.urgencia.map(u=>`<option>${u}</option>`).join('')}</select></div>
+      <div class="field"><label>Prioridad calculada (editable)</label><select name="prioridad">${CONFIG.prioridades.map(p=>`<option>${p}</option>`).join('')}</select></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Grupo de soporte *</label><select name="grupo" required>${CONFIG.grupos.map(g=>`<option>${g}</option>`).join('')}</select></div>
+      <div class="field"><label>Agente asignado</label><select name="agente"><option value="">— Sin asignar —</option>${AGENTES.map(a=>`<option value="${a.id}">${a.nombre} (${a.grupo})</option>`).join('')}</select></div>
+    </div>
+    <div class="flex gap8" style="justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)">
+      <button type="button" class="ghost" onclick="go('dashboard')">Cancelar</button>
+      <button type="submit" class="primary">${icon('i-save',14)} Crear ticket</button>
+    </div>
+  </form>`;
+}
+
+function viewDetail(id){
+  const tk = Repo.get(id);
+  if(!tk) return `<div class="empty">${icon('i-alert',32)}Ticket no encontrado. <button onclick="go('dashboard')">Volver al panel</button></div>`;
+  let dirty = false;
+  (tk.conversacion||[]).forEach(m=>{ if(m.autorTipo==='usuario' && !m.leido){ m.leido = true; dirty = true; } });
+  if(dirty) Repo.upsert(tk);
+
+  const s = Rules.slaStatus(tk);
+  const tab = state.tab||'conversacion';
+  const u = unreadCount(tk);
+
+  return `
+  ${flowbar()}
+  <div class="flex between center wrap gap12" style="margin-bottom:16px">
+    <div><button class="ghost" onclick="go('dashboard')">${icon('i-arrow-left',14)} Volver al panel</button></div>
+    <div class="flex gap8 wrap">
+      <button class="primary" id="btnEstado">${icon('i-edit',14)} Cambiar estado</button>
+      ${['Abierto','En progreso','Reabierto','Pendiente del solicitante','Pendiente de otra área','Pendiente de proveedor'].includes(tk.estado)?`<button class="success" id="btnResolve">${icon('i-check',14)} Resolver</button>`:''}
+      ${tk.estado==='Resuelto'?`<button class="success" id="btnClose">${icon('i-check-circle',14)} Cerrar</button>`:''}
+      ${['Resuelto','Cerrado'].includes(tk.estado)?`<button class="warn" id="btnReopen">${icon('i-refresh',14)} Reabrir</button>`:''}
+      ${!['Resuelto','Cerrado'].includes(tk.estado)?`<button class="ghost" id="btnEscalate">${icon('i-arrow-up-right',14)} Escalar</button>`:''}
+      <button class="ghost" id="btnSimular">${icon('i-message',14)} Simular respuesta</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="flex between center wrap gap8">
+      <div><div class="muted" style="font-family:monospace;font-size:13px">${tk.id}</div><h2 style="margin-top:4px">${esc(tk.asunto)} ${u?`<span class="unread">${u} nuevos</span>`:''}</h2></div>
+      <div class="flex gap8 wrap">${prioBadge(tk.prioridad)} ${estadoBadge(tk.estado)} ${slaBadge(tk)}</div>
+    </div>
+    <div class="grid3" style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <div><div class="muted">Solicitante</div><b>${esc(tk.solicitante)}</b><div class="muted">${esc(tk.email)}</div></div>
+      <div><div class="muted">Departamento</div><b>${esc(tk.departamento)}</b></div>
+      <div><div class="muted">Ubicación</div><b>${esc(tk.ubicacion)}</b></div>
+      <div><div class="muted">Tipo</div><b>${esc(tk.tipo)}</b></div>
+      <div><div class="muted">Categoría / Subcategoría</div><b>${esc(tk.categoria)} / ${esc(tk.subcategoria||'—')}</b></div>
+      <div><div class="muted">Servicio afectado</div><b>${esc(tk.servicio||'—')}</b></div>
+      <div><div class="muted">Impacto / Urgencia</div><b>${tk.impacto} / ${tk.urgencia}</b></div>
+      <div><div class="muted">Grupo / Agente</div><b>${esc(tk.grupo)} · ${esc(agentName(tk.agente))}</b></div>
+      <div><div class="muted">Creado / Actualizado</div><b>${fmt(tk.creadoEn)}</b><div class="muted">${fmt(tk.actualizadoEn)}</div></div>
+    </div>
+    <div class="card" style="margin-top:20px;background:var(--panel2);border:none">
+      <div class="flex between center">
+        <h3 style="margin:0">SLA · Política ${tk.prioridad}</h3>
+        <span class="muted">Objetivos: 1ª respuesta ${s.pol.respuesta}h · Resolución ${s.pol.resolucion}h</span>
+      </div>
+      <div class="bar-label" style="margin-top:12px"><span>Consumo de resolución</span><span>${s.pctRes}%</span></div>
+      <div class="flex center"><div class="bar-wrap"><div class="bar-fill" style="width:${s.pctRes}%;background:${s.estado==='incumplido'?'var(--danger)':s.estado==='riesgo'?'var(--warn)':'var(--ok)'}"></div></div></div>
+      <div class="flex between" style="margin-top:8px">
+        <span class="muted">Límite 1ª respuesta: ${fmt(s.limiteResp)}</span>
+        <span class="muted">Límite resolución: ${fmt(s.limiteRes)}</span>
+      </div>
+    </div>
+    <div class="field" style="margin-top:20px"><label>Descripción</label><div style="background:var(--panel2);padding:14px;border-radius:6px;border:1px solid var(--border);color:var(--text)">${esc(tk.descripcion)}</div></div>
+  </div>
+
+  <div class="tabs">
+    ${['conversacion','diagnostico','documentacion','historial'].map(t=>`<button data-tab="${t}" class="${tab===t?'active':''}">${({
+      conversacion: icon('i-message',14)+' Conversación',
+      diagnostico: icon('i-wrench',14)+' Diagnóstico',
+      documentacion: icon('i-file-text',14)+' Documentación',
+      historial: icon('i-history',14)+' Historial'
+    })[t]}</button>`).join('')}
+  </div>
+  <div id="tabContent">${renderTab(tk,tab)}</div>`;
+}
+
+function renderTab(tk, tab){
+  if(tab==='conversacion') return renderConversacion(tk);
+  if(tab==='diagnostico') return renderDiagnostico(tk);
+  if(tab==='documentacion') return renderDocumentacion(tk);
+  if(tab==='historial') return renderHistorial(tk);
+  return '';
+}
+
+function renderConversacion(tk){
+  const conv = tk.conversacion||[];
+  return `
+  <div class="grid2">
+    <div class="card">
+      <div class="flex between center">
+        <h3>${icon('i-message',15)} Conversación con ${esc(tk.solicitante)}</h3>
+        <span class="muted">${conv.filter(m=>m.autorTipo==='usuario').length} mensaje(s) del usuario</span>
+      </div>
+      <div class="thread" id="thread">
+        ${conv.map(m=>msgBubble(m)).join('') || `<div class="empty" style="border:none">${icon('i-message',32)}Sin mensajes aún.</div>`}
+      </div>
+      <div class="composer">
+        <div class="quickbar">
+          <span class="muted" style="margin-right:6px">Plantillas:</span>
+          <button class="ghost" data-plantilla="conf">Recepción</button>
+          <button class="ghost" data-plantilla="info">Pedir info</button>
+          <button class="ghost" data-plantilla="prog">Progreso</button>
+          <button class="ghost" data-plantilla="dep">Dependencia</button>
+          <button class="ghost" data-plantilla="risk">Riesgo SLA</button>
+          <button class="ghost" data-plantilla="res">Resolución</button>
+          <button class="ghost" data-plantilla="val">Validación</button>
+          <button class="ghost" data-plantilla="close">Cierre</button>
+        </div>
+        <textarea id="msgText" placeholder="Escriba un mensaje al solicitante..."></textarea>
+        <div class="attach-row">
+          <select id="msgTipo" style="max-width:180px">
+            <option value="mensaje">Mensaje</option>
+            <option value="llamada">Registro de llamada</option>
+            <option value="acuerdo">Acuerdo alcanzado</option>
+          </select>
+          <span class="grow" style="flex:1"></span>
+          <button class="primary" id="sendMsg">${icon('i-send',14)} Enviar</button>
+        </div>
+      </div>
+      <p class="muted">El solicitante puede responder automáticamente en unos segundos. También puedes forzar una respuesta con "Simular respuesta".</p>
+    </div>
+    <div class="card">
+      <h3>${icon('i-phone',15)} Registro rápido</h3>
+      <div class="composer">
+        <label>Llamada entrante/saliente</label>
+        <textarea id="callText" placeholder="Resumen de la llamada, acuerdos y siguiente paso..."></textarea>
+        <div class="flex" style="justify-content:flex-end;margin-top:8px"><button class="ghost" id="saveCall">${icon('i-phone',14)} Registrar llamada</button></div>
+      </div>
+      <div class="composer">
+        <label>Acuerdo con el usuario</label>
+        <textarea id="agreeText" placeholder="Ej: Se acuerda seguimiento mañana a las 10:00"></textarea>
+        <div class="flex" style="justify-content:flex-end;margin-top:8px"><button class="ghost" id="saveAgree">${icon('i-handshake',14)} Registrar acuerdo</button></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function msgBubble(m){
+  if(m.tipo==='sistema' || m.autorTipo==='sistema'){
+    return `<div class="msg system">${esc(m.texto)} · ${fmt(m.fecha)}</div>`;
+  }
+  const cls = m.autorTipo==='usuario' ? 'user' : 'agent';
+  const iconId = m.autorTipo==='usuario' ? 'i-user' : 'i-headset';
+  const tipoLabel = m.tipo==='llamada' ? icon('i-phone',12)+' Llamada' : m.tipo==='acuerdo' ? icon('i-handshake',12)+' Acuerdo' : '';
+  return `<div class="msg ${cls}">
+    ${tipoLabel?`<div style="font-size:11px;font-weight:700;margin-bottom:4px;color:inherit;display:flex;align-items:center;gap:4px">${tipoLabel}</div>`:''}
+    <div class="author">${icon(iconId,14)} ${esc(m.autor)}</div>
+    <div style="margin-top:4px">${esc(m.texto)}</div>
+    <div class="meta">${fmt(m.fecha)}${m.leido===false?' · <span style="color:var(--danger);font-weight:700">nuevo</span>':''}</div>
+  </div>`;
+}
+
+function renderDiagnostico(tk){
+  return `
+  <div class="card">
+    <h3>${icon('i-wrench',15)} Diagnóstico técnico</h3>
+    ${tk.diagnosticos.length? tk.diagnosticos.map(d=>`
+      <div class="scenario-card" style="background:#fff;border-color:var(--border)">
+        <div class="grid2" style="gap:8px">
+          <div><b>Síntomas:</b> ${esc(d.sintomas)}</div>
+          <div><b>Pruebas ejecutadas:</b> ${esc(d.pruebas)}</div>
+          <div><b>Resultados:</b> ${esc(d.resultados)}</div>
+          <div><b>Hipótesis:</b> ${esc(d.hipotesis)}</div>
+          <div><b>Causa confirmada:</b> ${esc(d.causa||'<span style="color:var(--muted)">No confirmada</span>')}</div>
+          <div><b>Acciones correctivas:</b> ${esc(d.acciones||'—')}</div>
+        </div>
+        <div style="margin-top:8px"><b>Evidencia:</b> ${esc(d.evidencia||'—')}</div>
+        <div class="muted" style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">Registrado ${fmt(d.fecha)}</div>
+      </div>`).join('') : `<div class="empty" style="border:none;padding:24px">${icon('i-clipboard',32)}Sin diagnósticos registrados.</div>`}
+    <div class="composer">
+      <h3>Registrar diagnóstico</h3>
+      <div class="row">
+        <div class="field"><label>Síntomas *</label><input id="d_sintomas" placeholder="Ej: Error de cola al imprimir"/></div>
+        <div class="field"><label>Pruebas ejecutadas *</label><input id="d_pruebas" placeholder="Ej: Reinicio de spooler"/></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Resultados *</label><input id="d_resultados" placeholder="Ej: El error persiste"/></div>
+        <div class="field"><label>Hipótesis *</label><input id="d_hipotesis" placeholder="Ej: Controlador corrupto"/></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Causa confirmada (si aplica)</label><input id="d_causa"/></div>
+        <div class="field"><label>Acciones correctivas</label><input id="d_acciones"/></div>
+      </div>
+      <div class="field"><label>Evidencia</label><input id="d_evidencia"/></div>
+      <div class="flex" style="justify-content:flex-end"><button class="primary" id="saveDiag">${icon('i-save',14)} Guardar diagnóstico</button></div>
+    </div>
+  </div>`;
+}
+
+function renderDocumentacion(tk){
+  return `
+  <div class="grid2">
+    <div class="card">
+      <h3>${icon('i-file-text',15)} Notas internas (no visibles al usuario)</h3>
+      ${tk.notasInternas.length? tk.notasInternas.map(n=>`
+        <div class="scenario-card" style="background:#fffbeb;border-color:#fde68a">
+          <div class="flex between"><b style="color:#b45309">${esc(n.autor)}</b><span class="muted">${fmt(n.fecha)}</span></div>
+          <div style="margin-top:6px;color:#78350f">${esc(n.texto)}</div>
+          <div class="muted" style="font-size:11px;margin-top:6px;color:#b45309">Tipo: ${esc(n.tipo||'nota')}</div>
+        </div>`).join('') : `<div class="empty" style="border:none;padding:24px">${icon('i-file-text',32)}Sin notas internas.</div>`}
+      <div class="composer">
+        <div class="row">
+          <div class="field"><label>Tipo de nota</label><select id="noteTipo">
+            <option value="nota">Nota de documentación</option>
+            <option value="llamada">Detalle de llamada</option>
+            <option value="acuerdo">Acuerdo interno</option>
+            <option value="seguimiento">Seguimiento</option>
+          </select></div>
+        </div>
+        <label>Contenido</label>
+        <textarea id="noteText" placeholder="Documente hallazgos internos, sin mostrar al usuario..."></textarea>
+        <div class="flex" style="justify-content:flex-end;margin-top:8px"><button class="ghost" id="saveNote">${icon('i-save',14)} Guardar nota</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>${icon('i-flag',15)} Próximas acciones</h3>
+      <div class="field"><label>Próxima acción</label><input id="nextAction" value="${esc(tk._nextAction||'')}" placeholder="Ej: Confirmar con usuario"/></div>
+      <div class="field"><label>Responsable</label><select id="nextOwner">${AGENTES.map(a=>`<option value="${a.id}" ${tk._nextOwner===a.id?'selected':''}>${a.nombre}</option>`).join('')}</select></div>
+      <div class="field"><label>Fecha de seguimiento</label><input type="date" id="nextDate" value="${tk._nextDate||''}"/></div>
+      <div class="flex" style="justify-content:flex-end"><button class="primary" id="saveFollow">${icon('i-save',14)} Guardar seguimiento</button></div>
+      
+      ${tk.escalamientos.length?`<h3 style="margin-top:20px">Escalamientos registrados</h3>${tk.escalamientos.map(e=>`<div class="scenario-card" style="background:#fff"><b>${icon('i-arrow-up-right',12)} ${esc(e.grupoDestino)}</b> <span class="muted">· ${fmt(e.fecha)}</span><div style="margin-top:4px"><b>Motivo:</b> ${esc(e.motivo)}</div><div><b>Acción solicitada:</b> ${esc(e.accion)}</div></div>`).join('')}`:''}
+      
+      ${tk.resolucion?`<h3 style="margin-top:20px">Resolución registrada</h3>
+        <div class="scenario-card" style="background:#f0fdf4;border-color:#a7f3d0">
+          <div><b>Diagnóstico:</b> ${esc(tk.resolucion.diagnostico)}</div>
+          <div><b>Causa:</b> ${esc(tk.resolucion.causa)}</div>
+          <div><b>Solución:</b> ${esc(tk.resolucion.solucion)}</div>
+          <div><b>Pruebas:</b> ${esc(tk.resolucion.pruebas)} → ${esc(tk.resolucion.resultado)}</div>
+          <div><b>Evidencia:</b> ${esc(tk.resolucion.evidencia)}</div>
+          <div style="margin-top:8px;color:var(--ok);font-weight:600">Validado por usuario: ${tk.resolucion.validadoPorUsuario?'Sí':'No'}</div>
+        </div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderHistorial(tk){
+  return `<div class="card"><h3>${icon('i-history',15)} Historial de actividad</h3>
+    <div class="timeline">
+      ${tk.auditoria.slice().reverse().map(a=>`
+        <div class="event">
+          <div><b>${esc(a.tipo)}</b> — ${esc(a.detalle)}</div>
+          <div class="meta">${esc(a.actor)} · ${fmt(a.fecha)}</div>
+        </div>`).join('')}
+    </div></div>`;
+}
+
+function viewAgents(){
+  return `${flowbar()}
+  <h2>Agentes y grupos</h2><p class="muted" style="margin-bottom:20px">Directorio ficticio del simulador.</p>
+  <div class="card" style="padding:0"><table><thead><tr><th>ID</th><th>Nombre</th><th>Grupo</th><th>Nivel</th><th>Especialidad</th><th>Disponibilidad</th><th>Carga</th></tr></thead><tbody>
+  ${AGENTES.map(a=>{
+    const carga = Repo.all().filter(t=>t.agente===a.id && !['Cerrado','Resuelto'].includes(t.estado)).length;
+    return `<tr><td><b>${a.id}</b></td><td>${a.nombre}</td><td>${a.grupo}</td><td>N${a.nivel}</td><td>${a.especialidad}</td>
+      <td>${a.disponible?'<span class="badge b-resuelto">Disponible</span>':'<span class="badge b-alta">Ocupado</span>'}</td>
+      <td>${carga} tickets activos</td></tr>`;
+  }).join('')}</tbody></table></div>
+  <div class="card"><h3>Grupos de soporte</h3><div class="flex wrap gap8">${CONFIG.grupos.map(g=>`<span class="tag">${g} · ${Repo.all().filter(t=>t.grupo===g&&!['Cerrado','Resuelto'].includes(t.estado)).length} activos</span>`).join('')}</div></div>`;
+}
+
+function viewConfig(){
+  return `${flowbar()}
+  <h2>Configuración</h2>
+  <div class="grid2">
+    <div class="card"><h3>Matriz de prioridad</h3>
+      <table><thead><tr><th>Impacto \\ Urgencia</th>${CONFIG.urgencia.map(u=>`<th>${u}</th>`).join('')}</tr></thead><tbody>
+      ${CONFIG.impacto.map(i=>`<tr><td><b>${i}</b></td>${CONFIG.urgencia.map(u=>`<td>${prioBadge(Rules.calcularPrioridad(i,u))}</td>`).join('')}</tr>`).join('')}
+      </tbody></table></div>
+    <div class="card"><h3>Políticas SLA</h3>
+      <table><thead><tr><th>Prioridad</th><th>1ª respuesta (h)</th><th>Resolución (h)</th></tr></thead><tbody>
+      ${CONFIG.prioridades.map(p=>`<tr><td>${prioBadge(p)}</td><td>${CONFIG.sla[p].respuesta}</td><td>${CONFIG.sla[p].resolucion}</td></tr>`).join('')}
+      </tbody></table>
+      <p class="muted" style="margin-top:12px">Calendario laboral: L-V ${CONFIG.calendario.horaInicio}:00–${CONFIG.calendario.horaFin}:00</p>
+    </div>
+  </div>
+  <div class="card"><h3>Datos de práctica</h3>
+    <p class="muted" style="margin-bottom:16px">Operaciones locales del simulador.</p>
+    <div class="flex gap8">
+      <button class="ghost" id="exportCsv2">${icon('i-download',14)} Exportar tickets a CSV</button>
+      <button class="danger" id="btnReset">${icon('i-refresh',14)} Reiniciar simulación</button>
+    </div>
+  </div>`;
+}
+
+function viewHelp(){
+  return `${flowbar()}
+  <h2>Guía de uso</h2>
+  <div class="card">
+    <h3>${icon('i-book',15)} Interacción con tickets</h3>
+    <ul style="padding-left:18px;color:var(--text);line-height:1.8;margin-bottom:16px">
+      <li><b>Conversación:</b> envía mensajes al solicitante. Recibirás respuestas automáticas en segundos (o puedes forzarlas con "Simular respuesta").</li>
+      <li><b>Registro de llamadas y acuerdos:</b> quedan guardados en el hilo y en el historial.</li>
+      <li><b>Diagnóstico:</b> documenta síntomas, pruebas, hipótesis y causas.</li>
+      <li><b>Notas internas:</b> visibles solo para agentes, con tipos (nota, llamada, acuerdo, seguimiento).</li>
+      <li><b>Cambio de estado:</b> transiciones controladas con motivo obligatorio.</li>
+      <li><b>Resolver:</b> requiere diagnóstico, causa, solución, pruebas, resultado y evidencia. Al resolver, se solicita validación al usuario y se espera su respuesta.</li>
+      <li><b>Cerrar:</b> solo cuando el usuario haya confirmado (o validado por escenario).</li>
+      <li><b>Reabrir:</b> cuando el usuario reporta que el problema persiste; también puede ocurrir automáticamente si el usuario responde a un ticket cerrado.</li>
+    </ul>
+    <h3 style="margin-top:20px">${icon('i-clock',15)} Recepción de solicitudes</h3>
+    <p class="muted">Las solicitudes llegan cada 4-9 segundos. Usa Pausar/Reanudar o Solicitud manual.</p>
+  </div>`;
+}
+
+/* ===== NUEVA VISTA ACERCA DE ===== */
+function viewAbout(){
+  return `${flowbar()}
+  <h2>Acerca de</h2>
+  <div class="card" style="max-width:640px;margin:0 auto;text-align:center">
+    <div style="width:80px;height:80px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 20px">
+      <svg width="40" height="40" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="10" r="3"/><path d="M6.5 19c1.5-2 3.5-3 5.5-3s4 1 5.5 3"/></svg>
+    </div>
+    <h2 style="justify-content:center;margin-bottom:4px">Junior J. Victoriano</h2>
+    <p class="muted" style="margin-bottom:24px">Desarrollador del simulador</p>
+    <div style="background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:20px;text-align:left;margin-bottom:20px">
+      <h3>${icon('i-info',15)} Información del proyecto</h3>
+      <p style="line-height:1.7;color:var(--text)">
+        <b>Help Desk Training Simulator</b> es un laboratorio ITSM interactivo diseñado para la formación de agentes de soporte técnico. 
+        Incluye tickets vivos, conversación con usuarios simulados, diagnóstico guiado, políticas SLA, escenarios formativos y evaluación automática.
+      </p>
+      <p style="margin-top:12px;line-height:1.7;color:var(--muted)">
+        Versión 1.0 · Simulador local sin conexión a servicios externos.
+      </p>
+    </div>
+    <div class="flex" style="justify-content:center;gap:10px">
+      <button class="ghost" onclick="go('help')">${icon('i-help',14)} Guía de uso</button>
+      <button class="primary" onclick="go('dashboard')">${icon('i-dashboard',14)} Ir al panel</button>
+    </div>
+  </div>`;
+}
+
+const ESCENARIOS = [
+  {id:'M1', codigo:'M1', titulo:'Clasificación avanzada de un incidente', modulo:1,
+   objetivo:'Corregir clasificación y documentar datos recopilados.',
+   contexto:'Solicitud con descripción ambigua que debe reclasificarse.',
+   tareas:['Corregir asunto a título descriptivo','Verificar categoría/subcategoría','Registrar nota interna con datos'],
+   criterios:[
+     {desc:'Asunto descriptivo (≥15 chars)',peso:25,fn:t=>t.asunto.length>=15},
+     {desc:'Categoría y subcategoría definidas',peso:25,fn:t=>!!t.categoria && !!t.subcategoria},
+     {desc:'Prioridad coherente impacto/urgencia',peso:25,fn:t=>Rules.calcularPrioridad(t.impacto,t.urgencia)===t.prioridad},
+     {desc:'Nota interna registrada',peso:25,fn:t=>t.notasInternas.length>0}
+   ]},
+  {id:'M2', codigo:'M2', titulo:'Documentación técnica', modulo:2,
+   objetivo:'Registrar diagnóstico completo separando hipótesis de causa confirmada.',
+   contexto:'El usuario reportó un error ambiguo. Estructura el diagnóstico.',
+   tareas:['Registrar diagnóstico con síntomas/pruebas/resultados/hipótesis','Enviar mensaje solicitando información si aplica'],
+   criterios:[
+     {desc:'Diagnóstico con 4 campos completos',peso:50,fn:t=>t.diagnosticos.some(d=>d.sintomas&&d.pruebas&&d.resultados&&d.hipotesis)},
+     {desc:'Mensaje al solicitante enviado',peso:30,fn:t=>t.conversacion.some(m=>m.autorTipo==='agente'&&m.tipo==='mensaje')},
+     {desc:'Nota interna registrada',peso:20,fn:t=>t.notasInternas.length>0}
+   ]},
+  {id:'M3', codigo:'M3', titulo:'Priorización y SLA', modulo:3,
+   objetivo:'Aplicar matriz y ordenar por riesgo.',
+   contexto:'Varios tickets simultáneos. Prioriza según impacto.',
+   tareas:['Revisar prioridad de cada ticket','Identificar riesgo de SLA en notas'],
+   criterios:[
+     {desc:'Prioridades coherentes',peso:60,fn:t=>Rules.calcularPrioridad(t.impacto,t.urgencia)===t.prioridad},
+     {desc:'Nota menciona riesgo/SLA',peso:40,fn:t=>t.notasInternas.some(n=>/riesgo|sla|venc|incumpl/i.test(n.texto))}
+   ]},
+  {id:'M4', codigo:'M4', titulo:'Seguimiento de pendientes', modulo:4,
+   objetivo:'Documentar dependencia y próxima acción.',
+   contexto:'El ticket requiere validación externa.',
+   tareas:['Nota con dependencia','Próxima acción y fecha'],
+   criterios:[
+     {desc:'Nota con dependencia',peso:40,fn:t=>t.notasInternas.length>0},
+     {desc:'Próxima acción definida',peso:30,fn:t=>!!t._nextAction},
+     {desc:'Fecha de seguimiento',peso:30,fn:t=>!!t._nextDate}
+   ]},
+  {id:'M5', codigo:'M5', titulo:'Comunicación profesional', modulo:5,
+   objetivo:'Comunicar sin comprometer fechas no validadas.',
+   contexto:'Hay bloqueo externo; comunica con expectativas realistas.',
+   tareas:['Mensaje al solicitante','Sin promesas absolutas','Sin culpar a terceros'],
+   criterios:[
+     {desc:'Mensaje registrado',peso:50,fn:t=>t.conversacion.some(m=>m.autorTipo==='agente'&&m.tipo==='mensaje')},
+     {desc:'Sin promesas de fecha absolutas',peso:25,fn:t=>t.conversacion.filter(m=>m.autorTipo==='agente').every(m=>!/mañana|hoy|antes de|garantiz/i.test(m.texto))},
+     {desc:'Lenguaje profesional',peso:25,fn:t=>t.conversacion.filter(m=>m.autorTipo==='agente').every(m=>!/culpa|incompet/i.test(m.texto))}
+   ]},
+  {id:'M6', codigo:'M6', titulo:'Diagnóstico y escalamiento', modulo:6,
+   objetivo:'Escalar con información suficiente.',
+   contexto:'Las pruebas iniciales no identifican causa; escala a N2.',
+   tareas:['Diagnóstico','Escalamiento con motivo y acción'],
+   criterios:[
+     {desc:'Diagnóstico con pruebas e hipótesis',peso:50,fn:t=>t.diagnosticos.some(d=>d.pruebas&&d.hipotesis)},
+     {desc:'Escalamiento completo',peso:50,fn:t=>t.escalamientos.some(e=>e.motivo&&e.accion)}
+   ]},
+  {id:'M7', codigo:'M7', titulo:'Cierre y reapertura', modulo:7,
+   objetivo:'Resolver, validar con el usuario y cerrar correctamente.',
+   contexto:'El problema reaparece; documenta y gestiona.',
+   tareas:['Diagnóstico','Resolución completa','Cerrar tras validación'],
+   criterios:[
+     {desc:'Diagnóstico registrado',peso:30,fn:t=>t.diagnosticos.length>0},
+     {desc:'Resolución completa',peso:40,fn:t=>!!t.resolucion && t.resolucion.diagnostico && t.resolucion.solucion && t.resolucion.pruebas && t.resolucion.evidencia},
+     {desc:'Ticket cerrado',peso:30,fn:t=>t.estado==='Cerrado'}
+   ]},
+  {id:'M8', codigo:'M8', titulo:'Taller integral', modulo:8,
+   objetivo:'Gestionar el ticket de principio a fin.',
+   contexto:'Ciclo completo: recepción, diagnóstico, comunicación, resolución y cierre.',
+   tareas:['Clasificar','Documentar','Comunicar','Resolver','Cerrar'],
+   criterios:[
+     {desc:'Clasificación completa',peso:20,fn:t=>!!t.categoria&&!!t.subcategoria},
+     {desc:'Diagnóstico completo',peso:20,fn:t=>t.diagnosticos.some(d=>d.pruebas&&d.hipotesis)},
+     {desc:'Comunicación con el usuario',peso:20,fn:t=>t.conversacion.some(m=>m.autorTipo==='agente')},
+     {desc:'Resolución registrada',peso:20,fn:t=>!!t.resolucion},
+     {desc:'Ticket cerrado',peso:20,fn:t=>t.estado==='Cerrado'}
+   ]}
+];
+
+function viewScenarios(){
+  return `${flowbar()}
+  <h2>Centro de escenarios formativos</h2>
+  <p class="muted" style="margin-bottom:20px">Cada escenario genera tickets reales para practicar y evalúa tu desempeño 0-100.</p>
+  ${ESCENARIOS.map(e=>{
+    const done = Repo.load().intentos.find(i=>i.escenario===e.id);
+    return `<div class="scenario-card ${done?'completed':''}">
+      <div class="flex between center wrap">
+        <div><b>${e.codigo}. ${esc(e.titulo)}</b> <span class="tag">Módulo ${e.modulo}</span> ${done?`<span class="badge b-resuelto" style="margin-left:8px">${done.puntaje}/100</span>`:''}</div>
+        <div class="flex gap8"><button class="ghost" data-scen-info="${e.id}">${icon('i-info',14)} Ver detalle</button><button class="primary" data-scen-start="${e.id}">${icon('i-play',14)} Iniciar</button></div>
+      </div>
+      <p class="muted" style="margin-top:8px">${esc(e.objetivo)}</p>
+    </div>`;
+  }).join('')}`;
+}
+
+function viewScenarioRun(id){
+  const e = ESCENARIOS.find(x=>x.id===id);
+  if(!e) return `<div class="empty">${icon('i-alert',32)}Escenario no encontrado. <button onclick="go('scenarios')">Volver</button></div>`;
+  const intento = Repo.load().intentos.find(i=>i.escenario===id);
+  const ticketsAsignados = state.scenarioTickets[id] || [];
+  return `${flowbar()}
+  <button class="ghost" onclick="go('scenarios')" style="margin-bottom:16px">${icon('i-arrow-left',14)} Volver a escenarios</button>
+  <div class="card">
+    <div class="flex between center">
+      <h2>${e.codigo}. ${esc(e.titulo)}</h2>
+      <span class="tag">Módulo ${e.modulo}</span>
+    </div>
+    <p class="muted" style="margin-top:6px">${esc(e.objetivo)}</p>
+    
+    <h3 style="margin-top:20px">Contexto</h3><p>${esc(e.contexto)}</p>
+    
+    <h3 style="margin-top:20px">Tickets del escenario</h3>
+    ${ticketsAsignados.length
+      ? ticketsAsignados.map(tid=>{const t=Repo.get(tid); return t?`<div class="flex between center" style="padding:12px;border-bottom:1px solid var(--border);background:#fff;margin-bottom:4px;border-radius:6px"><div><b>${t.id}</b> · ${esc(t.asunto)} ${estadoBadge(t.estado)}</div><button class="ghost" data-open-ticket="${t.id}">Abrir ticket</button></div>`:`<div class="muted">Ticket ${tid} no encontrado.</div>`;}).join('')
+      : `<div class="empty" style="padding:24px;margin-top:8px">${icon('i-ticket',32)}Aún no se han generado los tickets.</div>`}
+    
+    <div class="flex gap8" style="margin-top:16px">
+      <button class="primary" id="genScenario" data-gen="${e.id}">${icon('i-plus',14)} Generar tickets del escenario</button>
+    </div>
+    
+    <h3 style="margin-top:20px">Tareas obligatorias</h3>
+    <ul style="padding-left:18px;line-height:1.8">${e.tareas.map(t=>`<li>${esc(t)}</li>`).join('')}</ul>
+    
+    <div class="flex gap8" style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
+      <button class="success" id="evaluateScen" data-eval="${e.id}" style="width:100%">${icon('i-check-circle',14)} Finalizar y evaluar</button>
+    </div>
+    
+    ${intento?`<div class="card" style="margin-top:20px;background:var(--panel2);border:none">
+      <h3>Resultado último intento: ${intento.puntaje}/100</h3>
+      ${intento.detalle.map(d=>`<div class="crit-row"><span>${esc(d.desc)}</span><span style="font-weight:700;color:${d.ok?'var(--ok)':'var(--danger)'};display:inline-flex;align-items:center;gap:4px">${d.ok?icon('i-check',12):icon('i-x-circle',12)} ${d.ok?'Cumplido':'Pendiente'} · ${d.pts}/${d.peso} pts</span></div>`).join('')}
+    </div>`:''}
+  </div>`;
+}
+
+function bindViewEvents(){
+  bindFlowbar();
+
+  $$('#view [data-id]').forEach(el=>{
+    if(el.tagName==='TR' || el.classList.contains('flex')) el.onclick = ()=>go('detail', el.dataset.id);
+  });
+
+  $$('#view th[data-sort]').forEach(th=>th.onclick=()=>{
+    const k=th.dataset.sort;
+    state.sort = {key:k, dir: state.sort.key===k? -state.sort.dir : -1};
+    render();
+  });
+  $$('#view [data-f]').forEach(el=>{
+    el.onchange = el.oninput = ()=>{
+      state.filters = state.filters||{};
+      state.filters[el.dataset.f] = el.value;
+      state.page = 1; render();
+    };
+  });
+  $$('#preViews button').forEach(b=>b.onclick=()=>{ state.vistaPre=b.dataset.pre; state.page=1; render(); });
+  $('#prevPage')?.addEventListener('click', ()=>{ state.page--; render(); });
+  $('#nextPage')?.addEventListener('click', ()=>{ state.page++; render(); });
+  $$('#view tbody tr[data-id]').forEach(tr=>tr.onclick=()=>go('detail',tr.dataset.id));
+  $('#exportCsv')?.addEventListener('click', exportCsv);
+  $('#exportCsv2')?.addEventListener('click', exportCsv);
+  $('#btnReset')?.addEventListener('click', ()=>{
+    if(confirm('¿Reiniciar la simulación? Se borrarán todos los tickets, notas y escenarios.')){
+      Inflow.stop(); Repo.reset(); state.view='dashboard'; state.ticketId=null; state.filters={}; state.page=1; state.scenarioTickets={};
+      toast('Simulación reiniciada','warn');
+      render();
+    }
+  });
+
+  const cf = $('#createForm');
+  if(cf){
+    const catSel = cf.querySelector('[name=categoria]');
+    const subSel = cf.querySelector('[name=subcategoria]');
+    const impactoSel = cf.querySelector('[name=impacto]');
+    const urgenciaSel = cf.querySelector('[name=urgencia]');
+    const prioSel = cf.querySelector('[name=prioridad]');
+    const syncSubs = ()=>{ subSel.innerHTML = CONFIG.categorias[catSel.value].map(s=>`<option>${s}</option>`).join(''); };
+    const syncPrio = ()=>{ prioSel.value = Rules.calcularPrioridad(impactoSel.value, urgenciaSel.value); };
+    catSel.onchange = syncSubs; impactoSel.onchange = syncPrio; urgenciaSel.onchange = syncPrio;
+    syncSubs(); syncPrio();
+    cf.onsubmit = ev=>{
+      ev.preventDefault();
+      const fd = Object.fromEntries(new FormData(cf));
+      if(!fd.asunto || fd.asunto.length<8) return toast('Asunto muy corto','err');
+      if(!fd.descripcion || fd.descripcion.length<15) return toast('Descripción muy corta','err');
+      const tk = newTicket(fd);
+      Repo.upsert(tk);
+      toast('Ticket creado: '+tk.id,'ok');
+      go('detail', tk.id);
+    };
+  }
+
+  $$('#view [data-tab]').forEach(b=>b.onclick=()=>{ state.tab=b.dataset.tab; render(); });
+
+  const tk = state.ticketId ? Repo.get(state.ticketId) : null;
+  if(tk){
+    $('#btnEstado')?.addEventListener('click', ()=>modalEstado(tk));
+    $('#btnResolve')?.addEventListener('click', ()=>modalResolver(tk));
+    $('#btnClose')?.addEventListener('click', ()=>cerrarTicket(tk));
+    $('#btnReopen')?.addEventListener('click', ()=>reabrirTicket(tk));
+    $('#btnEscalate')?.addEventListener('click', ()=>modalEscalar(tk));
+    $('#btnSimular')?.addEventListener('click', ()=>{ generarRespuestaUsuario(tk); });
+    $('#btnAssign')?.addEventListener('click', ()=>modalAsignar(tk));
+
+    $$('#view [data-plantilla]').forEach(b=>b.onclick=()=>{
+      const k=b.dataset.plantilla;
+      const textos = {
+        conf:'Hola, hemos recibido su solicitud. Estamos revisando el caso y le mantendremos informado.',
+        info:'Para continuar necesitamos información adicional: por favor comparta capturas del error y los pasos para reproducirlo.',
+        prog:'Le informamos que su caso está en progreso. Nuestro equipo se encuentra ejecutando pruebas diagnósticas.',
+        dep:'Su caso depende de la validación de otra área. Le mantendremos informado del avance sin comprometer fechas no confirmadas.',
+        risk:'Le informamos que existe riesgo de afectación al SLA. Estamos priorizando la atención para minimizar el impacto.',
+        res:'Le informamos que su caso ha sido resuelto. Por favor confirme que el servicio funciona correctamente.',
+        val:'Solicitamos amablemente validar que la solución aplicada resuelve su inconveniente. Responda confirmando.',
+        close:'Procedemos a cerrar el ticket. Si el problema reaparece, responda este mensaje para reabrirlo.'
+      };
+      $('#msgText').value = textos[k]||'';
+    });
+
+    $('#sendMsg')?.addEventListener('click', ()=>{
+      const txt = $('#msgText').value.trim();
+      const tipo = $('#msgTipo').value;
+      if(!txt) return toast('Escriba un mensaje','err');
+      tk.conversacion.push({
+        id:'m'+Math.random().toString(36).slice(2,8),
+        tipo: tipo==='llamada'?'llamada': tipo==='acuerdo'?'acuerdo':'mensaje',
+        autor:'Agente TI', autorTipo:'agente', texto:txt, fecha:now(), leido:true
+      });
+      if(!tk.primeraRespuesta) tk.primeraRespuesta = now();
+      if(tipo==='mensaje' && /necesitamos información adicional|comparta capturas|pasos para reproducir/i.test(txt)
+         && ['Abierto','En progreso','Reabierto'].includes(tk.estado)){
+        tk.estado = 'Pendiente del solicitante';
+        logAudit(tk,'Agente TI','Cambio de estado','Pendiente del solicitante (se solicitó información)');
+      }
+      logAudit(tk,'Agente TI', tipo==='llamada'?'Llamada registrada':tipo==='acuerdo'?'Acuerdo registrado':'Mensaje al solicitante', txt.slice(0,80));
+      Repo.upsert(tk);
+      UserReplies.schedule();
+      toast('Mensaje enviado','ok');
+      render();
+    });
+
+    $('#saveCall')?.addEventListener('click', ()=>{
+      const txt = $('#callText').value.trim();
+      if(!txt) return toast('Escriba el resumen de la llamada','err');
+      tk.conversacion.push({id:'m'+Math.random().toString(36).slice(2,8),tipo:'llamada',autor:'Agente TI',autorTipo:'agente',texto:txt,fecha:now(),leido:true});
+      if(!tk.primeraRespuesta) tk.primeraRespuesta = now();
+      logAudit(tk,'Agente TI','Llamada registrada',txt.slice(0,80));
+      Repo.upsert(tk); toast('Llamada registrada','ok'); render();
+    });
+    $('#saveAgree')?.addEventListener('click', ()=>{
+      const txt = $('#agreeText').value.trim();
+      if(!txt) return toast('Escriba el acuerdo','err');
+      tk.conversacion.push({id:'m'+Math.random().toString(36).slice(2,8),tipo:'acuerdo',autor:'Agente TI',autorTipo:'agente',texto:txt,fecha:now(),leido:true});
+      logAudit(tk,'Agente TI','Acuerdo registrado',txt.slice(0,80));
+      Repo.upsert(tk); toast('Acuerdo registrado','ok'); render();
+    });
+
+    $('#saveDiag')?.addEventListener('click', ()=>{
+      const d = {
+        sintomas:$('#d_sintomas').value.trim(), pruebas:$('#d_pruebas').value.trim(),
+        resultados:$('#d_resultados').value.trim(), hipotesis:$('#d_hipotesis').value.trim(),
+        causa:$('#d_causa').value.trim(), acciones:$('#d_acciones').value.trim(),
+        evidencia:$('#d_evidencia').value.trim(), fecha:now()
+      };
+      if(!d.sintomas||!d.pruebas||!d.resultados||!d.hipotesis) return toast('Complete síntomas, pruebas, resultados e hipótesis','err');
+      tk.diagnosticos.push(d);
+      logAudit(tk,'Agente TI','Diagnóstico',d.sintomas.slice(0,80));
+      Repo.upsert(tk); toast('Diagnóstico guardado','ok'); render();
+    });
+
+    $('#saveNote')?.addEventListener('click', ()=>{
+      const txt = $('#noteText').value.trim();
+      const tipo = $('#noteTipo').value;
+      if(!txt) return toast('Escriba la nota','err');
+      tk.notasInternas.push({fecha:now(),autor:'Agente TI',texto:txt,tipo});
+      logAudit(tk,'Agente TI','Nota interna',txt.slice(0,80));
+      Repo.upsert(tk); toast('Nota guardada','ok'); render();
+    });
+    $('#saveFollow')?.addEventListener('click', ()=>{
+      tk._nextAction = $('#nextAction').value.trim();
+      tk._nextOwner = $('#nextOwner').value;
+      tk._nextDate = $('#nextDate').value;
+      logAudit(tk,'Agente TI','Seguimiento',`Próxima acción: ${tk._nextAction||'—'} · Responsable: ${agentName(tk._nextOwner)}`);
+      Repo.upsert(tk); toast('Seguimiento actualizado','ok'); render();
+    });
+  }
+
+  $$('#view [data-scen-info]').forEach(b=>b.onclick=()=>{
+    const e = ESCENARIOS.find(x=>x.id===b.dataset.scenInfo);
+    alert(`${e.codigo} — ${e.titulo}\n\nObjetivo: ${e.objetivo}\n\nContexto: ${e.contexto}\n\nTareas:\n- ${e.tareas.join('\n- ')}\n\nCriterios:\n${e.criterios.map(c=>`• ${c.desc} (${c.peso} pts)`).join('\n')}`);
+  });
+  $$('#view [data-scen-start]').forEach(b=>b.onclick=()=>{ state.view='scenarioRun'; state.scenarioId=b.dataset.scenStart; render(); });
+  $$('#view [data-open-ticket]').forEach(b=>b.onclick=()=>go('detail', b.dataset.openTicket));
+  $('#genScenario')?.addEventListener('click', e=>{
+    const id = e.target.dataset.gen;
+    state.scenarioTickets = state.scenarioTickets||{};
+    state.scenarioTickets[id] = [];
+    const count = id==='M3' ? 3 : 1;
+    for(let i=0;i<count;i++){ const t = generarSolicitud(); state.scenarioTickets[id].push(t.id); }
+    toast(`${count} ticket(s) generado(s) para ${id}`,'ok');
+    render();
+  });
+  $('#evaluateScen')?.addEventListener('click', e=>evaluarEscenario(e.target.dataset.eval));
+}
+
+function modal(html){
+  const bg = document.createElement('div'); bg.className='modal-bg';
+  bg.innerHTML = `<div class="modal">${html}</div>`;
+  document.body.appendChild(bg);
+  bg.addEventListener('click', e=>{ if(e.target===bg) bg.remove(); });
+  return bg;
+}
+function modalEstado(tk){
+  const valid = {
+    'Abierto':['En progreso','Pendiente del solicitante','Pendiente de otra área','Pendiente de proveedor'],
+    'En progreso':['Pendiente del solicitante','Pendiente de otra área','Pendiente de proveedor','Abierto'],
+    'Pendiente del solicitante':['En progreso','Abierto'],
+    'Pendiente de otra área':['En progreso','Pendiente de proveedor'],
+    'Pendiente de proveedor':['En progreso','Pendiente de otra área'],
+    'Reabierto':['En progreso','Pendiente del solicitante'],
+    'Resuelto':['Cerrado','Reabierto'],
+    'Cerrado':['Reabierto']
+  };
+  const opts = valid[tk.estado]||[];
+  if(!opts.length) return toast('Sin transiciones válidas','err');
+  const bg = modal(`<h3>Cambiar estado · ${tk.id}</h3>
+    <div class="field"><label>Nuevo estado</label><select id="newEstado">${opts.map(o=>`<option>${o}</option>`).join('')}</select></div>
+    <div class="field"><label>Motivo / detalle *</label><textarea id="estadoMotivo" placeholder="Explique el motivo del cambio de estado"></textarea></div>
+    <div class="modal-actions"><button class="ghost" id="cancel">Cancelar</button><button class="primary" id="ok">${icon('i-check',14)} Aplicar cambio</button></div>`);
+  bg.querySelector('#cancel').onclick = ()=>bg.remove();
+  bg.querySelector('#ok').onclick = ()=>{
+    const nv = bg.querySelector('#newEstado').value;
+    const mot = bg.querySelector('#estadoMotivo').value.trim();
+    if(!mot) return toast('Indique el motivo','err');
+    tk.estado = nv; tk._estadoMotivo = mot;
+    logAudit(tk,'Agente TI','Cambio de estado',`${nv} · ${mot}`);
+    tk.conversacion.push({id:'m'+Math.random().toString(36).slice(2,8),tipo:'sistema',autor:'Sistema',autorTipo:'sistema',texto:`Estado cambiado a ${nv}: ${mot}`,fecha:now(),leido:true});
+    if(nv==='Pendiente del solicitante'){ UserReplies.schedule(); }
+    Repo.upsert(tk); bg.remove(); toast('Estado actualizado','ok'); render();
+  };
+}
+function modalResolver(tk){
+  const bg = modal(`<h3>Resolver ticket · ${tk.id}</h3>
+    <div class="row">
+      <div class="field"><label>Diagnóstico final *</label><input id="r_diag"/></div>
+      <div class="field"><label>Causa confirmada *</label><input id="r_causa"/></div>
+    </div>
+    <div class="field"><label>Solución aplicada *</label><textarea id="r_sol"></textarea></div>
+    <div class="row">
+      <div class="field"><label>Pruebas de validación *</label><input id="r_pruebas"/></div>
+      <div class="field"><label>Resultado *</label><input id="r_res"/></div>
+    </div>
+    <div class="field"><label>Evidencia / referencia *</label><input id="r_ev"/></div>
+    <div class="field" style="background:var(--panel2);padding:12px;border-radius:6px;border:1px solid var(--border)"><label style="display:flex;align-items:center;gap:8px;margin:0"><input type="checkbox" id="r_user" style="width:auto;margin:0"/> El usuario confirmó verbalmente la solución</label></div>
+    <p class="muted" style="margin-top:12px">Al resolver, enviaremos un mensaje al solicitante solicitando validación.</p>
+    <div class="modal-actions"><button class="ghost" id="cancel">Cancelar</button><button class="success" id="ok">${icon('i-check',14)} Resolver</button></div>`);
+  bg.querySelector('#cancel').onclick = ()=>bg.remove();
+  bg.querySelector('#ok').onclick = ()=>{
+    const d = {
+      diagnostico:bg.querySelector('#r_diag').value.trim(),
+      causa:bg.querySelector('#r_causa').value.trim(),
+      solucion:bg.querySelector('#r_sol').value.trim(),
+      pruebas:bg.querySelector('#r_pruebas').value.trim(),
+      resultado:bg.querySelector('#r_res').value.trim(),
+      evidencia:bg.querySelector('#r_ev').value.trim(),
+      validadoPorUsuario:bg.querySelector('#r_user').checked
+    };
+    const faltan = ['diagnostico','causa','solucion','pruebas','resultado','evidencia'].filter(k=>!d[k]);
+    if(faltan.length) return toast('Faltan: '+faltan.join(', '),'err');
+    tk.resolucion = d; tk.estado = 'Resuelto'; tk._resueltoEn = now();
+    tk.conversacion.push({id:'m'+Math.random().toString(36).slice(2,8),tipo:'mensaje',autor:'Agente TI',autorTipo:'agente',
+      texto:'Le informamos que su caso ha sido resuelto. Por favor confirme que el servicio funciona correctamente respondiendo este mensaje.',fecha:now(),leido:true});
+    if(!tk.primeraRespuesta) tk.primeraRespuesta = now();
+    logAudit(tk,'Agente TI','Resolución',d.solucion.slice(0,80));
+    Repo.upsert(tk); bg.remove(); toast('Ticket resuelto','ok');
+    UserReplies.schedule();
+    render();
+  };
+}
+function cerrarTicket(tk){
+  if(!tk.resolucion) return toast('Debe resolver antes de cerrar','err');
+  const confirmado = tk.usuarioConfirmo || tk.resolucion.validadoPorUsuario;
+  if(!confirmado) return toast('Falta confirmación del usuario. Usa Simular respuesta o espera su mensaje.','err');
+  tk.estado = 'Cerrado';
+  logAudit(tk,'Agente TI','Cierre','Ticket cerrado con validación del usuario');
+  tk.conversacion.push({id:'m'+Math.random().toString(36).slice(2,8),tipo:'sistema',autor:'Sistema',autorTipo:'sistema',texto:'Ticket cerrado',fecha:now(),leido:true});
+  Repo.upsert(tk); toast('Ticket cerrado','ok'); render();
+}
+function reabrirTicket(tk){
+  const motivo = prompt('Motivo de reapertura:');
+  if(!motivo) return;
+  tk.estado = 'Reabierto'; tk.reaperturas = (tk.reaperturas||0)+1;
+  logAudit(tk,'Agente TI','Reapertura',motivo);
+  tk.conversacion.push({id:'m'+Math.random().toString(36).slice(2,8),tipo:'sistema',autor:'Sistema',autorTipo:'sistema',texto:`Ticket reabierto: ${motivo}`,fecha:now(),leido:true});
+  Repo.upsert(tk); toast('Ticket reabierto','ok'); render();
+}
+function modalEscalar(tk){
+  const bg = modal(`<h3>Escalar ticket · ${tk.id}</h3>
+    <div class="row">
+      <div class="field"><label>Grupo destino *</label><select id="e_grupo">${CONFIG.grupos.map(g=>`<option>${g}</option>`).join('')}</select></div>
+      <div class="field"><label>Agente destino</label><select id="e_agente"><option value="">— Cualquiera —</option>${AGENTES.map(a=>`<option value="${a.id}">${a.nombre}</option>`).join('')}</select></div>
+    </div>
+    <div class="field"><label>Motivo del escalamiento *</label><textarea id="e_motivo"></textarea></div>
+    <div class="row">
+      <div class="field"><label>Diagnóstico inicial *</label><input id="e_diag"/></div>
+      <div class="field"><label>Pruebas realizadas *</label><input id="e_pruebas"/></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>Resultados obtenidos *</label><input id="e_res"/></div>
+      <div class="field"><label>Evidencias</label><input id="e_ev"/></div>
+    </div>
+    <div class="field"><label>Impacto operativo</label><input id="e_impacto"/></div>
+    <div class="field"><label>Acción solicitada al equipo receptor *</label><input id="e_accion"/></div>
+    <div class="modal-actions"><button class="ghost" id="cancel">Cancelar</button><button class="primary" id="ok">${icon('i-arrow-up-right',14)} Escalar ticket</button></div>`);
+  bg.querySelector('#cancel').onclick = ()=>bg.remove();
+  bg.querySelector('#ok').onclick = ()=>{
+    const e = {
+      fecha:now(), grupoDestino:bg.querySelector('#e_grupo').value,
+      agenteDestino:bg.querySelector('#e_agente').value||null,
+      motivo:bg.querySelector('#e_motivo').value.trim(),
+      diagnostico:bg.querySelector('#e_diag').value.trim(),
+      pruebas:bg.querySelector('#e_pruebas').value.trim(),
+      resultados:bg.querySelector('#e_res').value.trim(),
+      evidencias:bg.querySelector('#e_ev').value.trim(),
+      impacto:bg.querySelector('#e_impacto').value.trim(),
+      accion:bg.querySelector('#e_accion').value.trim()
+    };
+    const faltan = ['motivo','diagnostico','pruebas','resultados','accion'].filter(k=>!e[k]);
+    if(faltan.length) return toast('Faltan: '+faltan.join(', '),'err');
+    tk.escalamientos.push(e);
+    tk.grupo = e.grupoDestino;
+    if(e.agenteDestino) tk.agente = e.agenteDestino;
+    logAudit(tk,'Agente TI','Escalamiento',`→ ${e.grupoDestino}: ${e.motivo.slice(0,60)}`);
+    tk.conversacion.push({id:'m'+Math.random().toString(36).slice(2,8),tipo:'sistema',autor:'Sistema',autorTipo:'sistema',texto:`Escalado a ${e.grupoDestino}`,fecha:now(),leido:true});
+    Repo.upsert(tk); bg.remove(); toast('Ticket escalado','ok'); render();
+  };
+}
+function modalAsignar(tk){
+  const bg = modal(`<h3>Reasignar · ${tk.id}</h3>
+    <div class="field"><label>Grupo</label><select id="a_grupo">${CONFIG.grupos.map(g=>`<option ${tk.grupo===g?'selected':''}>${g}</option>`).join('')}</select></div>
+    <div class="field"><label>Agente</label><select id="a_agente"><option value="">— Sin asignar —</option>${AGENTES.map(a=>`<option value="${a.id}" ${tk.agente===a.id?'selected':''}>${a.nombre}</option>`).join('')}</select></div>
+    <div class="modal-actions"><button class="ghost" id="cancel">Cancelar</button><button class="primary" id="ok">${icon('i-save',14)} Guardar</button></div>`);
+  bg.querySelector('#cancel').onclick = ()=>bg.remove();
+  bg.querySelector('#ok').onclick = ()=>{
+    const g = bg.querySelector('#a_grupo').value;
+    const a = bg.querySelector('#a_agente').value||null;
+    tk.grupo = g; tk.agente = a;
+    logAudit(tk,'Agente TI','Reasignación',`${g} · ${agentName(a)}`);
+    Repo.upsert(tk); bg.remove(); toast('Reasignado','ok'); render();
+  };
+}
+
+function evaluarEscenario(id){
+  const e = ESCENARIOS.find(x=>x.id===id);
+  const tickets = state.scenarioTickets[id] || [];
+  const ts = tickets.map(t=>Repo.get(t)).filter(Boolean);
+  if(!ts.length) return toast('Genera primero los tickets del escenario','err');
+
+  const detalle = []; let total = 0;
+  e.criterios.forEach(c=>{
+    const ok = ts.every(t=>c.fn(t));
+    const pts = ok ? c.peso : 0;
+    detalle.push({desc:c.desc,peso:c.peso,ok,pts});
+    total += pts;
+  });
+  const puntaje = Math.round(total);
+  const data = Repo.load();
+  data.intentos = data.intentos.filter(i=>i.escenario!==id);
+  data.intentos.push({escenario:id, puntaje, detalle, fecha:now()});
+  Repo.save();
+  toast(`Escenario ${id}: ${puntaje}/100`, puntaje>=70?'ok':'warn');
+  render();
+}
+
+function exportCsv(){
+  const ts = Repo.all();
+  if(!ts.length) return toast('Sin tickets para exportar','warn');
+  const cols = ['id','asunto','solicitante','departamento','tipo','categoria','subcategoria','prioridad','estado','agente','grupo','creadoEn','actualizadoEn'];
+  const head = cols.join(',');
+  const rows = ts.map(t=>cols.map(c=>{
+    let v = t[c]??'';
+    if(c==='agente') v = agentName(t.agente);
+    return `"${String(v).replace(/"/g,'""')}"`;
+  }).join(','));
+  const blob = new Blob([[head,...rows].join('\n')],{type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'tickets_helpdesk_sim.csv';
+  a.click();
+  toast('CSV exportado','ok');
+}
+
+setInterval(()=>{ const el=$('#clock'); if(el) el.textContent = new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}); }, 1000);
+
+$('#btnStart').addEventListener('click', ()=>{
+  const d = Repo.load();
+  d.iniciado = true; d.inflow.activo = true; d.inflow.pausado = false; d.inflow.total = 0;
+  Repo.save();
+  Inflow.start();
+  const tk = generarSolicitud();
+  toast(`Primera solicitud: ${tk.id}`, 'ok');
+  render();
+});
+
+(function boot(){
+  const d = Repo.load();
+  if(d.iniciado){
+    $('#boot').classList.add('hidden');
+    render();
+    if(d.inflow.activo && !d.inflow.pausado) Inflow.start();
+    UserReplies.schedule();
+  } else {
+    $('#boot').classList.remove('hidden');
+  }
+})();
+</script>
+</body>
+</html>
